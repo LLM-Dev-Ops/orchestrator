@@ -1,11 +1,12 @@
 [package]
 name = "llm-orchestrator-auth"
-version = "0.1.0"
-edition = "2021"
-authors = ["LLM Orchestrator Team"]
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
 description = "Authentication and authorization for LLM Orchestrator"
-license = "MIT"
-repository = "https://github.com/yourusername/llm-orchestrator"
 
 [dependencies]
 # JWT handling
