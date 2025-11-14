@@ -1,0 +1,160 @@
+# Production-specific overrides for LLM Orchestrator
+# Use with: helm install -f values.yaml -f values-production.yaml
+
+global:
+  environment: production
+
+# High availability with more replicas
+replicaCount: 5
+
+image:
+  pullPolicy: IfNotPresent
+  # Use specific version tags in production
+  tag: "v1.0.0"
+
+# Aggressive autoscaling for production load
+autoscaling:
+  enabled: true
+  minReplicas: 5
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 60
+  targetMemoryUtilizationPercentage: 70
+
+# Higher resource allocations
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+# Production PostgreSQL configuration
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+      requests:
+        cpu: 1000m
+        memory: 1Gi
+  readReplicas:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 50Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+# Production Redis configuration
+redis:
+  enabled: true
+  architecture: replication
+  master:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  replica:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+# Enable all production features
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+
+networkPolicy:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 3
+
+# Production ingress with TLS
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  tls:
+    enabled: true
+
+# Production logging configuration
+config:
+  logLevel: info
+  logFormat: json
+  workflowTimeout: 7200  # 2 hours
+  maxConcurrentWorkflows: 200
+
+# Use external secrets in production
+secrets:
+  externalSecrets:
+    enabled: true
+    backendType: secretsManager
+
+# Topology spread for multi-AZ
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: llm-orchestrator
+
+# Anti-affinity rules
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: llm-orchestrator
+        topologyKey: kubernetes.io/hostname
+
+# Priority class for critical workloads
+priorityClassName: "high-priority"
+
+# Graceful shutdown
+terminationGracePeriodSeconds: 60
+
+# Production lifecycle hooks
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - sleep 15

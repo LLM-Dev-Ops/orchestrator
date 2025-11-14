@@ -1,0 +1,60 @@
+apiVersion: v2
+name: llm-orchestrator
+description: Production-ready LLM workflow orchestration platform with state persistence, multi-provider support, and enterprise features
+type: application
+version: 1.0.0
+appVersion: "0.1.0"
+keywords:
+  - llm
+  - orchestrator
+  - workflow
+  - ai
+  - ml
+  - chatgpt
+  - claude
+  - anthropic
+home: https://llm-devops.io/orchestrator
+sources:
+  - https://github.com/llm-devops/llm-orchestrator
+maintainers:
+  - name: LLM DevOps Team
+    email: team@llm-devops.io
+
+# Dependencies for PostgreSQL and Redis
+dependencies:
+  - name: postgresql
+    version: "~13.2.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    tags:
+      - database
+  - name: redis
+    version: "~18.4.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+    tags:
+      - cache
+
+# Kubernetes version constraints
+kubeVersion: ">=1.24.0-0"
+
+# Annotations for Helm Hub/ArtifactHub
+annotations:
+  category: Infrastructure
+  licenses: MIT OR Apache-2.0
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial release of LLM Orchestrator Helm chart
+    - kind: added
+      description: PostgreSQL state persistence integration
+    - kind: added
+      description: Redis caching support
+    - kind: added
+      description: Horizontal Pod Autoscaling
+    - kind: added
+      description: Prometheus ServiceMonitor
+    - kind: added
+      description: Network policies for security
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/operator: "false"

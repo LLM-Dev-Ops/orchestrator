@@ -20,9 +20,15 @@ thiserror = { workspace = true }
 anyhow = { workspace = true }
 reqwest = { workspace = true }
 tracing = { workspace = true }
+uuid = { workspace = true }
 
 # Local dependencies
 llm-orchestrator-core = { path = "../llm-orchestrator-core" }
+llm-orchestrator-secrets = { path = "../llm-orchestrator-secrets", optional = true }
+
+[features]
+default = []
+secrets = ["llm-orchestrator-secrets"]
 
 [dev-dependencies]
 mockito = { workspace = true }

@@ -119,26 +119,26 @@ impl OpenAIProvider {
     /// ```no_run
     /// use llm_orchestrator_providers::OpenAIProvider;
     ///
-    /// let provider = OpenAIProvider::new("sk-...".to_string());
+    /// let provider = OpenAIProvider::new("sk-...".to_string()).unwrap();
     /// ```
-    pub fn new(api_key: String) -> Self {
+    pub fn new(api_key: String) -> Result<Self, ProviderError> {
         Self::with_base_url(api_key, "https://api.openai.com/v1".to_string())
     }
 
     /// Creates a new OpenAI provider with a custom base URL.
     ///
     /// Useful for testing or using OpenAI-compatible APIs.
-    pub fn with_base_url(api_key: String, base_url: String) -> Self {
+    pub fn with_base_url(api_key: String, base_url: String) -> Result<Self, ProviderError> {
         let client = Client::builder()
             .timeout(Duration::from_secs(120))
             .build()
-            .expect("Failed to create HTTP client");
+            .map_err(|e| ProviderError::HttpError(format!("Failed to create HTTP client: {}", e)))?;
 
-        Self {
+        Ok(Self {
             client,
             api_key,
             base_url,
-        }
+        })
     }
 
     /// Creates a new OpenAI provider from environment variable.
@@ -151,7 +151,44 @@ impl OpenAIProvider {
             )
         })?;
 
-        Ok(Self::new(api_key))
+        Self::new(api_key)
+    }
+
+    /// Creates a new OpenAI provider using a secret store.
+    ///
+    /// # Arguments
+    ///
+    /// * `secret_store` - The secret store to retrieve the API key from
+    /// * `secret_key` - The key to use when retrieving the secret (e.g., "openai/api_key")
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # #[cfg(feature = "secrets")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use llm_orchestrator_providers::OpenAIProvider;
+    /// use llm_orchestrator_secrets::{SecretStore, EnvSecretStore};
+    /// use std::sync::Arc;
+    ///
+    /// let secret_store: Arc<dyn SecretStore> = Arc::new(EnvSecretStore::new());
+    /// let provider = OpenAIProvider::from_secret_store(
+    ///     secret_store,
+    ///     "openai/api_key"
+    /// ).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "secrets")]
+    pub async fn from_secret_store(
+        secret_store: std::sync::Arc<dyn llm_orchestrator_secrets::SecretStore>,
+        secret_key: &str,
+    ) -> Result<Self, ProviderError> {
+        let secret = secret_store
+            .get_secret(secret_key)
+            .await
+            .map_err(|e| ProviderError::InvalidRequest(format!("Failed to retrieve secret: {}", e)))?;
+
+        Self::new(secret.value)
     }
 
     /// Converts a provider completion request to OpenAI format.
@@ -336,7 +373,7 @@ mod tests {
 
     #[test]
     fn test_provider_creation() {
-        let provider = OpenAIProvider::new("test-key".to_string());
+        let provider = OpenAIProvider::new("test-key".to_string()).unwrap();
         assert_eq!(provider.name(), "openai");
         assert_eq!(provider.base_url, "https://api.openai.com/v1");
     }
@@ -344,13 +381,13 @@ mod tests {
     #[test]
     fn test_provider_with_custom_base_url() {
         let provider =
-            OpenAIProvider::with_base_url("test-key".to_string(), "http://localhost:8080".to_string());
+            OpenAIProvider::with_base_url("test-key".to_string(), "http://localhost:8080".to_string()).unwrap();
         assert_eq!(provider.base_url, "http://localhost:8080");
     }
 
     #[test]
     fn test_to_openai_request() {
-        let provider = OpenAIProvider::new("test-key".to_string());
+        let provider = OpenAIProvider::new("test-key".to_string()).unwrap();
 
         let request = CompletionRequest {
             model: "gpt-4".to_string(),
@@ -374,7 +411,7 @@ mod tests {
 
     #[test]
     fn test_parse_rate_limit_error() {
-        let provider = OpenAIProvider::new("test-key".to_string());
+        let provider = OpenAIProvider::new("test-key".to_string()).unwrap();
 
         let error_json = r#"{
             "error": {
@@ -394,7 +431,7 @@ mod tests {
 
     #[test]
     fn test_parse_auth_error() {
-        let provider = OpenAIProvider::new("test-key".to_string());
+        let provider = OpenAIProvider::new("test-key".to_string()).unwrap();
 
         let error_json = r#"{
             "error": {

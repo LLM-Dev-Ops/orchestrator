@@ -1,55 +1,64 @@
-# RAG (Retrieval-Augmented Generation) Pipeline Example
-# This workflow retrieves relevant context from a vector database and generates an answer
+# RAG Pipeline Example - Question Answering with Vector Search
+# This workflow demonstrates a complete RAG (Retrieval-Augmented Generation) pipeline:
+# 1. Embed the user's query
+# 2. Search for relevant documents in a vector database
+# 3. Generate an answer using an LLM with retrieved context
 
 name: "rag-qa-pipeline"
 version: "1.0"
-description: "RAG-powered question answering system"
+description: "RAG-based question answering using embeddings and vector search"
 
 steps:
-  # Step 1: Generate embedding for the query
+  # Step 1: Embed the user's query
   - id: "embed_query"
     type: "embed"
     provider: "openai"
     model: "text-embedding-3-small"
-    input: "{{ query }}"
-    output: ["query_embedding"]
+    input: "{{ inputs.question }}"
+    dimensions: 1536
+    output:
+      - "query_vector"  # The embedding vector
+      - "embed_metadata"  # Metadata about the embedding
 
-  # Step 2: Search vector database for relevant documents
+  # Step 2: Search for relevant documents
   - id: "search_docs"
     type: "vector_search"
-    depends_on: ["embed_query"]
+    depends_on:
+      - "embed_query"
     database: "pinecone"
-    index: "knowledge_base"
-    query: "{{ outputs.embed_query }}"
+    index: "knowledge-base"
+    query: "{{ steps.embed_query.query_vector }}"
     top_k: 5
     include_metadata: true
-    output: ["search_results"]
+    include_vectors: false
+    output:
+      - "search_results"
+      - "search_metadata"
 
   # Step 3: Generate answer using retrieved context
   - id: "generate_answer"
     type: "llm"
-    depends_on: ["search_docs"]
+    depends_on:
+      - "search_docs"
     provider: "anthropic"
     model: "claude-3-5-sonnet-20241022"
+    system: "You are a helpful assistant that answers questions based on the provided context. If the context doesn't contain relevant information, say so."
     prompt: |
-      Based on the following context, answer the question below.
+      Context from knowledge base:
+      {{#each steps.search_docs.search_results}}
+      ---
+      Document {{@index}}:
+      {{this.metadata.text}}
+      (Score: {{this.score}})
+      {{/each}}
+      ---
 
-      Context:
-      {{ outputs.search_docs }}
+      Question: {{ inputs.question }}
 
-      Question: {{ query }}
-
-      Provide a detailed and accurate answer. If the context doesn't contain
-      relevant information, say so clearly.
-    temperature: 0.7
+      Answer based on the context above:
+    temperature: 0.3
     max_tokens: 500
-    output: ["answer"]
-
-  # Step 4: Generate citations
-  - id: "extract_citations"
-    type: "transform"
-    depends_on: ["search_docs"]
-    function: "extract_metadata"
-    inputs: ["{{ outputs.search_docs }}"]
-    fields: ["source", "title"]
-    output: ["citations"]
+    output:
+      - "answer"
+      - "model_used"
+      - "tokens_used"

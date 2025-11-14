@@ -125,9 +125,9 @@ impl AnthropicProvider {
     /// ```no_run
     /// use llm_orchestrator_providers::AnthropicProvider;
     ///
-    /// let provider = AnthropicProvider::new("sk-ant-...".to_string());
+    /// let provider = AnthropicProvider::new("sk-ant-...".to_string()).unwrap();
     /// ```
-    pub fn new(api_key: String) -> Self {
+    pub fn new(api_key: String) -> Result<Self, ProviderError> {
         Self::with_base_url(
             api_key,
             "https://api.anthropic.com/v1".to_string(),
@@ -136,18 +136,18 @@ impl AnthropicProvider {
     }
 
     /// Creates a new Anthropic provider with custom base URL and API version.
-    pub fn with_base_url(api_key: String, base_url: String, api_version: String) -> Self {
+    pub fn with_base_url(api_key: String, base_url: String, api_version: String) -> Result<Self, ProviderError> {
         let client = Client::builder()
             .timeout(Duration::from_secs(120))
             .build()
-            .expect("Failed to create HTTP client");
+            .map_err(|e| ProviderError::HttpError(format!("Failed to create HTTP client: {}", e)))?;
 
-        Self {
+        Ok(Self {
             client,
             api_key,
             base_url,
             api_version,
-        }
+        })
     }
 
     /// Creates a new Anthropic provider from environment variable.
@@ -160,7 +160,44 @@ impl AnthropicProvider {
             )
         })?;
 
-        Ok(Self::new(api_key))
+        Self::new(api_key)
+    }
+
+    /// Creates a new Anthropic provider using a secret store.
+    ///
+    /// # Arguments
+    ///
+    /// * `secret_store` - The secret store to retrieve the API key from
+    /// * `secret_key` - The key to use when retrieving the secret (e.g., "anthropic/api_key")
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # #[cfg(feature = "secrets")]
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// use llm_orchestrator_providers::AnthropicProvider;
+    /// use llm_orchestrator_secrets::{SecretStore, EnvSecretStore};
+    /// use std::sync::Arc;
+    ///
+    /// let secret_store: Arc<dyn SecretStore> = Arc::new(EnvSecretStore::new());
+    /// let provider = AnthropicProvider::from_secret_store(
+    ///     secret_store,
+    ///     "anthropic/api_key"
+    /// ).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "secrets")]
+    pub async fn from_secret_store(
+        secret_store: std::sync::Arc<dyn llm_orchestrator_secrets::SecretStore>,
+        secret_key: &str,
+    ) -> Result<Self, ProviderError> {
+        let secret = secret_store
+            .get_secret(secret_key)
+            .await
+            .map_err(|e| ProviderError::InvalidRequest(format!("Failed to retrieve secret: {}", e)))?;
+
+        Self::new(secret.value)
     }
 
     /// Converts a provider completion request to Anthropic format.
@@ -341,7 +378,7 @@ mod tests {
 
     #[test]
     fn test_provider_creation() {
-        let provider = AnthropicProvider::new("test-key".to_string());
+        let provider = AnthropicProvider::new("test-key".to_string()).unwrap();
         assert_eq!(provider.name(), "anthropic");
         assert_eq!(provider.base_url, "https://api.anthropic.com/v1");
     }
@@ -352,14 +389,14 @@ mod tests {
             "test-key".to_string(),
             "http://localhost:8080".to_string(),
             "2023-06-01".to_string(),
-        );
+        ).unwrap();
         assert_eq!(provider.base_url, "http://localhost:8080");
         assert_eq!(provider.api_version, "2023-06-01");
     }
 
     #[test]
     fn test_to_anthropic_request() {
-        let provider = AnthropicProvider::new("test-key".to_string());
+        let provider = AnthropicProvider::new("test-key".to_string()).unwrap();
 
         let request = CompletionRequest {
             model: "claude-3-opus-20240229".to_string(),
@@ -386,7 +423,7 @@ mod tests {
 
     #[test]
     fn test_parse_rate_limit_error() {
-        let provider = AnthropicProvider::new("test-key".to_string());
+        let provider = AnthropicProvider::new("test-key".to_string()).unwrap();
 
         let error_json = r#"{
             "error": {
@@ -405,7 +442,7 @@ mod tests {
 
     #[test]
     fn test_parse_auth_error() {
-        let provider = AnthropicProvider::new("test-key".to_string());
+        let provider = AnthropicProvider::new("test-key".to_string()).unwrap();
 
         let error_json = r#"{
             "error": {
@@ -424,7 +461,7 @@ mod tests {
 
     #[test]
     fn test_parse_invalid_request_error() {
-        let provider = AnthropicProvider::new("test-key".to_string());
+        let provider = AnthropicProvider::new("test-key".to_string()).unwrap();
 
         let error_json = r#"{
             "error": {

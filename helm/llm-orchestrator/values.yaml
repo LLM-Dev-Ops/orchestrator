@@ -1,0 +1,420 @@
+# Default values for llm-orchestrator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration
+global:
+  # Domain name for ingress
+  domain: orchestrator.example.com
+  # Environment: production, staging, development
+  environment: production
+
+# Orchestrator application configuration
+replicaCount: 3
+
+image:
+  # Image repository
+  repository: ghcr.io/llm-devops/llm-orchestrator
+  # Image pull policy
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion
+  tag: ""
+
+# Image pull secrets for private registries
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+  prometheus.io/path: "/metrics"
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: orchestrator.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    enabled: true
+    secretName: llm-orchestrator-tls
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+# Horizontal Pod Autoscaler configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity rules
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - llm-orchestrator
+          topologyKey: kubernetes.io/hostname
+
+# Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+# Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+  successThreshold: 1
+
+# Application configuration
+config:
+  # Logging level: trace, debug, info, warn, error
+  logLevel: info
+  # Log format: json, text
+  logFormat: json
+  # Server port
+  serverPort: 8080
+  # Metrics port
+  metricsPort: 9090
+  # Workflow execution timeout (seconds)
+  workflowTimeout: 3600
+  # Maximum concurrent workflows
+  maxConcurrentWorkflows: 100
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    username: orchestrator
+    password: ""  # Set via secret or generate
+    database: orchestrator
+    existingSecret: ""  # Use existing secret
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: ""
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+  readReplicas:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Redis configuration
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    password: ""  # Set via secret or generate
+    existingSecret: ""
+  master:
+    count: 1
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+
+# Secrets configuration
+secrets:
+  # Secrets manager type: kubernetes, vault, aws, gcp, azure
+  type: kubernetes
+  # Vault configuration (if type=vault)
+  vault:
+    enabled: false
+    address: "https://vault.example.com"
+    authPath: "kubernetes"
+    role: "llm-orchestrator"
+    secretPath: "secret/data/llm-orchestrator"
+  # External secrets operator
+  externalSecrets:
+    enabled: false
+    backendType: secretsManager  # secretsManager, parameterStore, gcpSecretsManager
+    roleArn: ""  # For AWS IRSA
+
+# LLM Provider API Keys (stored in secrets)
+# These should be provided via Kubernetes secrets or external secrets manager
+llmProviders:
+  anthropic:
+    enabled: true
+    apiKeySecret: "llm-orchestrator-secrets"
+    apiKeySecretKey: "anthropic-api-key"
+  openai:
+    enabled: true
+    apiKeySecret: "llm-orchestrator-secrets"
+    apiKeySecretKey: "openai-api-key"
+  cohere:
+    enabled: false
+    apiKeySecret: "llm-orchestrator-secrets"
+    apiKeySecretKey: "cohere-api-key"
+
+# Vector database configuration
+vectorDB:
+  type: pinecone  # pinecone, qdrant, weaviate
+  pinecone:
+    apiKeySecret: "llm-orchestrator-secrets"
+    apiKeySecretKey: "pinecone-api-key"
+    environment: "us-east-1-gcp"
+    indexName: "llm-orchestrator"
+  qdrant:
+    url: "http://qdrant:6333"
+    apiKeySecret: ""
+  weaviate:
+    url: "http://weaviate:8080"
+    apiKeySecret: ""
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    # Additional labels for ServiceMonitor
+    additionalLabels: {}
+    # Prometheus instance selector
+    prometheusInstance: default
+
+# Network policy configuration
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow ingress from ingress controller
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+      ports:
+      - protocol: TCP
+        port: 8080
+    # Allow Prometheus to scrape metrics
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: monitoring
+      ports:
+      - protocol: TCP
+        port: 9090
+  egress:
+    # Allow DNS
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: UDP
+        port: 53
+    # Allow PostgreSQL
+    - to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: postgresql
+      ports:
+      - protocol: TCP
+        port: 5432
+    # Allow Redis
+    - to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: redis
+      ports:
+      - protocol: TCP
+        port: 6379
+    # Allow HTTPS to external LLM APIs
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 443
+
+# ConfigMap for application configuration
+configMap:
+  # Additional configuration files
+  data: {}
+
+# Init containers
+initContainers: []
+  # - name: wait-for-db
+  #   image: busybox:1.35
+  #   command: ['sh', '-c', 'until nc -z postgresql 5432; do echo waiting for db; sleep 2; done;']
+
+# Sidecar containers
+sidecars: []
+
+# Extra volumes
+extraVolumes:
+  - name: tmp
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
+
+# Extra volume mounts
+extraVolumeMounts:
+  - name: tmp
+    mountPath: /tmp
+  - name: cache
+    mountPath: /home/orchestrator/.cache
+
+# Environment variables
+env: []
+  # - name: RUST_LOG
+  #   value: "info"
+
+# Environment variables from secrets/configmaps
+envFrom: []
+  # - secretRef:
+  #     name: llm-orchestrator-secrets
+  # - configMapRef:
+  #     name: llm-orchestrator-config
+
+# Priority class
+priorityClassName: ""
+
+# Topology spread constraints
+topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: llm-orchestrator
+
+# Pod lifecycle hooks
+lifecycle: {}
+  # preStop:
+  #   exec:
+  #     command: ["/bin/sh", "-c", "sleep 15"]
+
+# Termination grace period
+terminationGracePeriodSeconds: 30
+
+# Tests
+tests:
+  enabled: true
+  image:
+    repository: busybox
+    tag: 1.35
+    pullPolicy: IfNotPresent

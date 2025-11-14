@@ -1,0 +1,31 @@
+{{- if .Values.tests.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "llm-orchestrator.fullname" . }}-test-connection"
+  labels:
+    {{- include "llm-orchestrator.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+  - name: wget
+    image: "{{ .Values.tests.image.repository }}:{{ .Values.tests.image.tag }}"
+    imagePullPolicy: {{ .Values.tests.image.pullPolicy }}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Testing connection to {{ include "llm-orchestrator.fullname" . }}..."
+
+        # Test HTTP service connectivity
+        if wget --spider --timeout=5 --tries=3 http://{{ include "llm-orchestrator.fullname" . }}:{{ .Values.service.port }}/health/live 2>&1 | grep -q '200 OK'; then
+          echo "SUCCESS: Health check endpoint is accessible"
+          exit 0
+        else
+          echo "FAILURE: Cannot reach health check endpoint"
+          exit 1
+        fi
+{{- end }}

@@ -1,0 +1,593 @@
+{
+  "info": {
+    "name": "LLM Orchestrator API",
+    "description": "Production-grade LLM workflow orchestration platform with state persistence, authentication, audit logging, and comprehensive monitoring.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "0.1.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.llm-orchestrator.io/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workflow_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "execution_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"access_token\", jsonData.access_token);",
+                  "pm.collectionVariables.set(\"refresh_token\", jsonData.refresh_token);",
+                  "",
+                  "pm.test(\"Has access token\", function () {",
+                  "    pm.expect(jsonData.access_token).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"secure_password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Create API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"api_key\", jsonData.key);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Production Service\",\n  \"scopes\": [\"workflow:read\", \"workflow:execute\"],\n  \"expires_in_days\": 90\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/keys",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "keys"]
+            }
+          }
+        },
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/keys?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "keys"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workflows",
+      "item": [
+        {
+          "name": "Create Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"workflow_id\", jsonData.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"sentiment-analyzer\",\n  \"version\": \"1.0\",\n  \"description\": \"Analyzes sentiment of input text using GPT-4\",\n  \"steps\": [\n    {\n      \"id\": \"analyze\",\n      \"type\": \"llm\",\n      \"provider\": \"openai\",\n      \"model\": \"gpt-4\",\n      \"prompt\": \"Analyze sentiment: {{input}}\",\n      \"temperature\": 0.3,\n      \"max_tokens\": 50,\n      \"output\": [\"sentiment\"]\n    }\n  ],\n  \"timeout_seconds\": 300\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/workflows",
+              "host": ["{{base_url}}"],
+              "path": ["workflows"]
+            }
+          }
+        },
+        {
+          "name": "List Workflows",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["workflows"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "name",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Workflow",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Workflow",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"sentiment-analyzer\",\n  \"version\": \"1.1\",\n  \"description\": \"Updated sentiment analyzer\",\n  \"steps\": [\n    {\n      \"id\": \"analyze\",\n      \"type\": \"llm\",\n      \"provider\": \"openai\",\n      \"model\": \"gpt-4\",\n      \"prompt\": \"Analyze sentiment: {{input}}\",\n      \"output\": [\"sentiment\"]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Workflow",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Execution",
+      "item": [
+        {
+          "name": "Execute Workflow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"execution_id\", jsonData.execution_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inputs\": {\n    \"input\": \"This product is amazing!\"\n  },\n  \"async\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}/execute",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}", "execute"]
+            }
+          }
+        },
+        {
+          "name": "Get Execution Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}/status?executionId={{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}", "status"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Pause Workflow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}/pause?executionId={{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}", "pause"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resume Workflow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}/resume?executionId={{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}", "resume"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Workflow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/workflows/{{workflow_id}}/cancel?executionId={{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["workflows", "{{workflow_id}}", "cancel"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "State Management",
+      "item": [
+        {
+          "name": "Get Workflow State",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/state/{{workflow_id}}?executionId={{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["state", "{{workflow_id}}"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Checkpoints",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/state/{{workflow_id}}/checkpoints?executionId={{execution_id}}&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["state", "{{workflow_id}}", "checkpoints"],
+              "query": [
+                {
+                  "key": "executionId",
+                  "value": "{{execution_id}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Checkpoint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"stepId\": \"analyze\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/state/{{workflow_id}}/checkpoints",
+              "host": ["{{base_url}}"],
+              "path": ["state", "{{workflow_id}}", "checkpoints"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Monitoring",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/ready",
+              "host": ["{{base_url}}"],
+              "path": ["health", "ready"]
+            }
+          }
+        },
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/live",
+              "host": ["{{base_url}}"],
+              "path": ["health", "live"]
+            }
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["metrics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit",
+      "item": [
+        {
+          "name": "Query Audit Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/audit/events?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["audit", "events"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "event_type",
+                  "value": "workflow_execution",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get System Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

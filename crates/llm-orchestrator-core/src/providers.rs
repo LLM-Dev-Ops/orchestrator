@@ -103,3 +103,216 @@ impl From<serde_json::Error> for ProviderError {
         Self::SerializationError(err.to_string())
     }
 }
+
+/// Embedding provider trait.
+#[async_trait]
+pub trait EmbeddingProvider: Send + Sync {
+    /// Generate embeddings for text(s).
+    async fn embed(&self, request: EmbeddingRequest) -> Result<EmbeddingResponse, ProviderError>;
+
+    /// Get provider name.
+    fn name(&self) -> &str;
+
+    /// Check if provider is healthy.
+    async fn health_check(&self) -> Result<(), ProviderError> {
+        Ok(())
+    }
+}
+
+/// Embedding request.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmbeddingRequest {
+    /// Model name.
+    pub model: String,
+
+    /// Input text(s) to embed (can be single string or array).
+    #[serde(flatten)]
+    pub input: EmbeddingInput,
+
+    /// Optional dimension reduction (for providers that support it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimensions: Option<usize>,
+
+    /// Additional parameters.
+    #[serde(flatten)]
+    pub extra: HashMap<String, serde_json::Value>,
+}
+
+/// Embedding input type.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EmbeddingInput {
+    /// Single text.
+    Single { input: String },
+
+    /// Multiple texts (batch).
+    Batch { input: Vec<String> },
+}
+
+/// Embedding response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmbeddingResponse {
+    /// Embedding vector(s).
+    pub embeddings: Vec<Vec<f32>>,
+
+    /// Model used.
+    pub model: String,
+
+    /// Tokens used.
+    pub tokens_used: Option<u32>,
+
+    /// Additional metadata.
+    #[serde(flatten)]
+    pub metadata: HashMap<String, serde_json::Value>,
+}
+
+/// Vector search provider trait.
+#[async_trait]
+pub trait VectorSearchProvider: Send + Sync {
+    /// Search for similar vectors.
+    async fn search(&self, request: VectorSearchRequest) -> Result<VectorSearchResponse, ProviderError>;
+
+    /// Upsert (insert or update) vectors.
+    async fn upsert(&self, request: UpsertRequest) -> Result<UpsertResponse, ProviderError>;
+
+    /// Delete vectors by ID.
+    async fn delete(&self, request: DeleteRequest) -> Result<DeleteResponse, ProviderError>;
+
+    /// Get provider name.
+    fn name(&self) -> &str;
+
+    /// Check if provider is healthy.
+    async fn health_check(&self) -> Result<(), ProviderError> {
+        Ok(())
+    }
+}
+
+/// Vector search request.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VectorSearchRequest {
+    /// Index/collection name.
+    pub index: String,
+
+    /// Query vector.
+    pub query: Vec<f32>,
+
+    /// Number of results to return.
+    pub top_k: usize,
+
+    /// Namespace/partition (optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+
+    /// Metadata filter (optional, provider-specific format).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filter: Option<serde_json::Value>,
+
+    /// Include metadata in results.
+    #[serde(default = "default_true_vs")]
+    pub include_metadata: bool,
+
+    /// Include vector embeddings in results.
+    #[serde(default)]
+    pub include_vectors: bool,
+}
+
+fn default_true_vs() -> bool {
+    true
+}
+
+/// Vector search response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VectorSearchResponse {
+    /// Search results.
+    pub results: Vec<SearchResult>,
+
+    /// Additional metadata.
+    #[serde(flatten)]
+    pub metadata: HashMap<String, serde_json::Value>,
+}
+
+/// A single search result.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SearchResult {
+    /// Result ID.
+    pub id: String,
+
+    /// Similarity score (higher is better, range depends on metric).
+    pub score: f32,
+
+    /// Result metadata (if include_metadata was true).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+
+    /// Result vector (if include_vectors was true).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vector: Option<Vec<f32>>,
+}
+
+/// Upsert request for inserting/updating vectors.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpsertRequest {
+    /// Index/collection name.
+    pub index: String,
+
+    /// Vectors to upsert.
+    pub vectors: Vec<VectorRecord>,
+
+    /// Namespace/partition (optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+}
+
+/// A single vector record to upsert.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VectorRecord {
+    /// Record ID.
+    pub id: String,
+
+    /// Vector embedding.
+    pub vector: Vec<f32>,
+
+    /// Metadata (optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
+}
+
+/// Upsert response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UpsertResponse {
+    /// Number of vectors upserted.
+    pub upserted_count: usize,
+
+    /// Additional metadata.
+    #[serde(flatten)]
+    pub metadata: HashMap<String, serde_json::Value>,
+}
+
+/// Delete request for removing vectors.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeleteRequest {
+    /// Index/collection name.
+    pub index: String,
+
+    /// Vector IDs to delete.
+    pub ids: Vec<String>,
+
+    /// Namespace/partition (optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+
+    /// Delete all vectors in namespace (use with caution).
+    #[serde(default)]
+    pub delete_all: bool,
+}
+
+/// Delete response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeleteResponse {
+    /// Number of vectors deleted.
+    pub deleted_count: usize,
+
+    /// Additional metadata.
+    #[serde(flatten)]
+    pub metadata: HashMap<String, serde_json::Value>,
+}

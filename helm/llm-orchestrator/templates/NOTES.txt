@@ -1,0 +1,151 @@
+****************************************************************************
+***   LLM Orchestrator has been successfully installed!                 ***
+****************************************************************************
+
+Chart Version: {{ .Chart.Version }}
+App Version: {{ .Chart.AppVersion }}
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+{{- if .Values.ingress.enabled }}
+
+Your LLM Orchestrator is available at:
+{{- range .Values.ingress.hosts }}
+  {{- if $.Values.ingress.tls.enabled }}
+  https://{{ .host }}
+  {{- else }}
+  http://{{ .host }}
+  {{- end }}
+{{- end }}
+{{- else }}
+
+To access the LLM Orchestrator, run the following commands:
+
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "llm-orchestrator.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to access the orchestrator"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+****************************************************************************
+***                        Configuration Summary                        ***
+****************************************************************************
+
+Replicas: {{ .Values.replicaCount }}
+{{- if .Values.autoscaling.enabled }}
+Autoscaling: Enabled ({{ .Values.autoscaling.minReplicas }}-{{ .Values.autoscaling.maxReplicas }} replicas)
+{{- else }}
+Autoscaling: Disabled
+{{- end }}
+
+PostgreSQL:
+{{- if .Values.postgresql.enabled }}
+  Status: Enabled (in-cluster)
+  Host: {{ include "llm-orchestrator.postgresql.host" . }}
+  Database: {{ include "llm-orchestrator.postgresql.database" . }}
+  Persistence: {{ .Values.postgresql.primary.persistence.enabled }}
+  {{- if .Values.postgresql.primary.persistence.enabled }}
+  Storage: {{ .Values.postgresql.primary.persistence.size }}
+  {{- end }}
+{{- else }}
+  Status: Using external PostgreSQL
+  Host: {{ .Values.postgresql.externalHost }}
+{{- end }}
+
+Redis:
+{{- if .Values.redis.enabled }}
+  Status: Enabled (in-cluster)
+  Host: {{ include "llm-orchestrator.redis.host" . }}
+  Architecture: {{ .Values.redis.architecture }}
+{{- else }}
+  Status: Using external Redis
+  Host: {{ .Values.redis.externalHost }}
+{{- end }}
+
+LLM Providers:
+{{- if .Values.llmProviders.anthropic.enabled }}
+  - Anthropic (Claude): Enabled
+{{- end }}
+{{- if .Values.llmProviders.openai.enabled }}
+  - OpenAI (GPT): Enabled
+{{- end }}
+{{- if .Values.llmProviders.cohere.enabled }}
+  - Cohere: Enabled
+{{- end }}
+
+Vector Database: {{ .Values.vectorDB.type }}
+
+Monitoring:
+{{- if .Values.monitoring.enabled }}
+  Status: Enabled
+  {{- if .Values.monitoring.serviceMonitor.enabled }}
+  ServiceMonitor: Created for Prometheus
+  {{- end }}
+{{- else }}
+  Status: Disabled
+{{- end }}
+
+Security:
+  Network Policy: {{ .Values.networkPolicy.enabled }}
+  Pod Disruption Budget: {{ .Values.podDisruptionBudget.enabled }}
+  Run as Non-Root: {{ .Values.securityContext.runAsNonRoot }}
+  Read-Only Root Filesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+
+****************************************************************************
+***                         Health Checks                               ***
+****************************************************************************
+
+Check the status of your deployment:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "llm-orchestrator.name" . }}"
+
+View logs:
+
+  kubectl --namespace {{ .Release.Namespace }} logs -f deployment/{{ include "llm-orchestrator.fullname" . }}
+
+Check health endpoints:
+{{- if .Values.ingress.enabled }}
+{{- $host := (index .Values.ingress.hosts 0).host }}
+  curl {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ $host }}/health/live
+  curl {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ $host }}/health/ready
+{{- else }}
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "llm-orchestrator.fullname" . }} 8080:{{ .Values.service.port }}
+  curl http://localhost:8080/health/live
+  curl http://localhost:8080/health/ready
+{{- end }}
+
+****************************************************************************
+***                         Next Steps                                  ***
+****************************************************************************
+
+1. Verify all pods are running:
+   kubectl get pods -n {{ .Release.Namespace }}
+
+2. Check the logs for any errors:
+   kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "llm-orchestrator.name" . }}
+
+3. Run Helm tests to validate the installation:
+   helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+4. Create your first workflow using the API or CLI
+
+5. Monitor metrics via Prometheus:
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+   Metrics are automatically scraped by Prometheus
+{{- else }}
+   Access metrics at: http://{{ include "llm-orchestrator.fullname" . }}:9090/metrics
+{{- end }}
+
+****************************************************************************
+***                         Documentation                               ***
+****************************************************************************
+
+For more information:
+  - Homepage: {{ .Chart.Home }}
+  - Documentation: https://docs.llm-devops.io/orchestrator
+  - GitHub: https://github.com/llm-devops/llm-orchestrator
+  - Issues: https://github.com/llm-devops/llm-orchestrator/issues
+
+****************************************************************************
+
+{{ include "llm-orchestrator.validateValues.warnings" . }}

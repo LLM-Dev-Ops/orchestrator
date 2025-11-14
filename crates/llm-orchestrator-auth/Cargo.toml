@@ -1,0 +1,41 @@
+[package]
+name = "llm-orchestrator-auth"
+version = "0.1.0"
+edition = "2021"
+authors = ["LLM Orchestrator Team"]
+description = "Authentication and authorization for LLM Orchestrator"
+license = "MIT"
+repository = "https://github.com/yourusername/llm-orchestrator"
+
+[dependencies]
+# JWT handling
+jsonwebtoken = "9.3"
+
+# Cryptography
+sha2 = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Async support
+async-trait = "0.1"
+tokio = { version = "1.40", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "2.0"
+
+# UUID generation
+uuid = { version = "1.11", features = ["v4", "serde"] }
+
+# Concurrent data structures
+dashmap = "6.1"
+parking_lot = "0.12"
+
+[dev-dependencies]
+tokio-test = "0.4"

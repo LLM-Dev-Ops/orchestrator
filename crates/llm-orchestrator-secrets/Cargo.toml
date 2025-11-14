@@ -1,0 +1,47 @@
+[package]
+name = "llm-orchestrator-secrets"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "Secret management for LLM Orchestrator with Vault, AWS Secrets Manager, and environment variable support"
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true }
+async-trait = { workspace = true }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# HTTP client
+reqwest = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# Concurrency
+parking_lot = { workspace = true }
+
+# HashiCorp Vault client
+vaultrs = "0.7"
+
+# AWS SDK for Secrets Manager
+aws-config = "1.1"
+aws-sdk-secretsmanager = "1.52"
+
+# Logging
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+mockito = { workspace = true }

@@ -172,6 +172,14 @@ pub struct EmbedStepConfig {
 
     /// Input text or template.
     pub input: String,
+
+    /// Optional dimension reduction (for providers that support it).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimensions: Option<usize>,
+
+    /// Batch size for processing multiple texts.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub batch_size: Option<usize>,
 }
 
 /// Vector database search configuration.
@@ -194,9 +202,17 @@ pub struct VectorSearchConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filter: Option<serde_json::Value>,
 
+    /// Namespace/partition for the search.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub namespace: Option<String>,
+
     /// Include metadata in results.
     #[serde(default = "default_true")]
     pub include_metadata: bool,
+
+    /// Include vector embeddings in results.
+    #[serde(default)]
+    pub include_vectors: bool,
 }
 
 fn default_top_k() -> usize {

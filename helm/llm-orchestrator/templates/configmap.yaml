@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "llm-orchestrator.configMapName" . }}
+  labels:
+    {{- include "llm-orchestrator.labels" . | nindent 4 }}
+data:
+  # Application configuration
+  log_level: {{ .Values.config.logLevel | quote }}
+  log_format: {{ .Values.config.logFormat | quote }}
+  server_port: {{ .Values.config.serverPort | quote }}
+  metrics_port: {{ .Values.config.metricsPort | quote }}
+  workflow_timeout: {{ .Values.config.workflowTimeout | quote }}
+  max_concurrent_workflows: {{ .Values.config.maxConcurrentWorkflows | quote }}
+
+  # PostgreSQL configuration (non-sensitive)
+  database_host: {{ include "llm-orchestrator.postgresql.host" . | quote }}
+  database_port: {{ include "llm-orchestrator.postgresql.port" . | quote }}
+  database_name: {{ include "llm-orchestrator.postgresql.database" . | quote }}
+  database_user: {{ include "llm-orchestrator.postgresql.username" . | quote }}
+
+  # Redis configuration (non-sensitive)
+  redis_host: {{ include "llm-orchestrator.redis.host" . | quote }}
+  redis_port: {{ include "llm-orchestrator.redis.port" . | quote }}
+
+  # Vector DB configuration (non-sensitive)
+  vector_db_type: {{ .Values.vectorDB.type | quote }}
+  {{- if eq .Values.vectorDB.type "pinecone" }}
+  pinecone_environment: {{ .Values.vectorDB.pinecone.environment | quote }}
+  pinecone_index_name: {{ .Values.vectorDB.pinecone.indexName | quote }}
+  {{- else if eq .Values.vectorDB.type "qdrant" }}
+  qdrant_url: {{ .Values.vectorDB.qdrant.url | quote }}
+  {{- else if eq .Values.vectorDB.type "weaviate" }}
+  weaviate_url: {{ .Values.vectorDB.weaviate.url | quote }}
+  {{- end }}
+
+  # Environment
+  environment: {{ .Values.global.environment | quote }}
+
+  {{- with .Values.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}

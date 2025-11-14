@@ -1,0 +1,57 @@
+[package]
+name = "llm-orchestrator-state"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "State persistence and recovery for LLM workflow orchestrator"
+
+[dependencies]
+# Async runtime
+tokio = { workspace = true }
+async-trait = { workspace = true }
+futures = { workspace = true }
+
+# Database - SQLx with multiple drivers
+sqlx = { version = "0.8", features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "sqlite",
+    "uuid",
+    "chrono",
+    "json",
+    "migrate",
+] }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Time
+chrono = { workspace = true }
+
+# UUID
+uuid = { workspace = true }
+
+# Error handling
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+
+# Concurrency
+parking_lot = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+tempfile = "3.14"
+tracing-subscriber = { workspace = true }
+
+[[example]]
+name = "state_persistence_demo"
+path = "examples/state_persistence_demo.rs"

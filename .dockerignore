@@ -1,0 +1,44 @@
+# Build artifacts
+target/
+**/target/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+
+# Examples
+examples/
+
+# Plans
+plans/
+
+# Test files
+**/tests/
+
+# Cargo lock for libraries (keep for binaries)
+# Cargo.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+*.pem
+*.key

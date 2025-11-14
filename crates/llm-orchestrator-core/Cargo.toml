@@ -10,6 +10,9 @@ rust-version.workspace = true
 description = "Core workflow orchestration engine for LLM pipelines"
 
 [dependencies]
+# Local crates
+llm-orchestrator-state = { path = "../llm-orchestrator-state", optional = true }
+
 # Workspace dependencies
 tokio = { workspace = true }
 futures = { workspace = true }
@@ -27,6 +30,15 @@ chrono = { workspace = true }
 dashmap = { workspace = true }
 parking_lot = { workspace = true }
 rand = { workspace = true }
+
+# Observability dependencies
+prometheus = { version = "0.13", features = ["process"] }
+lazy_static = "1.4"
+reqwest = { workspace = true }
+
+[features]
+default = []
+state-persistence = ["llm-orchestrator-state"]
 
 [dev-dependencies]
 tokio-test = { workspace = true }

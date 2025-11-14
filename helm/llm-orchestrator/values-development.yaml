@@ -1,0 +1,99 @@
+# Development-specific overrides for LLM Orchestrator
+# Use with: helm install -f values.yaml -f values-development.yaml
+
+global:
+  environment: development
+
+# Minimal resources for development
+replicaCount: 1
+
+image:
+  pullPolicy: Always
+  tag: "latest"
+
+# Disable autoscaling in dev
+autoscaling:
+  enabled: false
+
+# Lower resource allocations
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+# Development PostgreSQL - no persistence
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  readReplicas:
+    replicaCount: 0
+
+# Development Redis - no persistence
+redis:
+  enabled: true
+  architecture: standalone
+  master:
+    persistence:
+      enabled: false
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  replica:
+    replicaCount: 0
+
+# Disable production features
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+
+networkPolicy:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+# Simple ingress without TLS
+ingress:
+  enabled: false
+
+# Development logging
+config:
+  logLevel: debug
+  logFormat: text
+  workflowTimeout: 600  # 10 minutes
+  maxConcurrentWorkflows: 10
+
+# Use Kubernetes secrets in dev
+secrets:
+  type: kubernetes
+  externalSecrets:
+    enabled: false
+
+# No affinity rules in dev
+affinity: {}
+
+# No topology spread in dev
+topologySpreadConstraints: []
+
+# No priority class
+priorityClassName: ""
+
+# Shorter grace period
+terminationGracePeriodSeconds: 10

@@ -47,6 +47,9 @@ pub mod context;
 pub mod dag;
 pub mod error;
 pub mod executor;
+pub mod executor_state;
+pub mod health;
+pub mod metrics;
 pub mod providers;
 pub mod retry;
 pub mod workflow;
@@ -77,7 +80,8 @@ mod tests {
 
     #[test]
     fn test_version() {
-        assert!(!VERSION.is_empty());
+        // Check that version is set (should be a semver string)
+        assert!(VERSION.contains('.'));
         assert_eq!(NAME, "llm-orchestrator-core");
     }
 }

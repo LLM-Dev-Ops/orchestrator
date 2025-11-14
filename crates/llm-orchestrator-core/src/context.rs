@@ -64,20 +64,31 @@ impl ExecutionContext {
         // Build context data for rendering
         let mut context_data = serde_json::Map::new();
 
-        // Add inputs
+        // Add inputs (flat at root level for backward compatibility)
         let inputs = self.inputs.read();
         for (key, value) in inputs.iter() {
             context_data.insert(key.clone(), value.clone());
         }
 
-        // Add outputs (nested under step IDs)
+        // Add inputs under "inputs" key for explicit access
+        if !inputs.is_empty() {
+            let inputs_map: serde_json::Map<String, Value> = inputs.iter()
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+            context_data.insert("inputs".to_string(), Value::Object(inputs_map));
+        }
+
+        // Add outputs under both "outputs" and "steps" keys
         let outputs = self.outputs.read();
         if !outputs.is_empty() {
             let mut outputs_map = serde_json::Map::new();
             for (step_id, value) in outputs.iter() {
                 outputs_map.insert(step_id.clone(), value.clone());
             }
-            context_data.insert("outputs".to_string(), Value::Object(outputs_map));
+
+            // Support both {{outputs.step_id}} (backward compat) and {{steps.step_id.field}} (new)
+            context_data.insert("outputs".to_string(), Value::Object(outputs_map.clone()));
+            context_data.insert("steps".to_string(), Value::Object(outputs_map));
         }
 
         // Render template
@@ -261,5 +272,46 @@ mod tests {
         assert_eq!(all_outputs.len(), 2);
         assert_eq!(all_outputs.get("step1"), Some(&json!("result1")));
         assert_eq!(all_outputs.get("step2"), Some(&json!("result2")));
+    }
+
+    #[test]
+    fn test_template_nested_field_access() {
+        let ctx = ExecutionContext::default();
+
+        // Set output with nested object
+        ctx.set_output("step1", json!({
+            "greeting": "Hello",
+            "sentiment": "positive"
+        }));
+
+        // Test both old and new syntax
+        // Note: Handlebars renders objects as "[object]" by default
+        let result_old = ctx.render_template("{{ outputs.step1 }}").unwrap();
+        assert_eq!(result_old, "[object]");
+
+        let result_new = ctx.render_template("{{ steps.step1.greeting }}").unwrap();
+        assert_eq!(result_new, "Hello");
+
+        let result_sentiment = ctx.render_template("{{ steps.step1.sentiment }}").unwrap();
+        assert_eq!(result_sentiment, "positive");
+    }
+
+    #[test]
+    fn test_template_inputs_namespace() {
+        let mut inputs = HashMap::new();
+        inputs.insert("name".to_string(), json!("Alice"));
+        inputs.insert("age".to_string(), json!(30));
+
+        let ctx = ExecutionContext::new(inputs);
+
+        // Test both root-level and namespaced access
+        let result1 = ctx.render_template("{{ name }}").unwrap();
+        assert_eq!(result1, "Alice");
+
+        let result2 = ctx.render_template("{{ inputs.name }}").unwrap();
+        assert_eq!(result2, "Alice");
+
+        let result3 = ctx.render_template("{{ inputs.age }}").unwrap();
+        assert_eq!(result3, "30");
     }
 }

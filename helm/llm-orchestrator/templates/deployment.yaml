@@ -1,0 +1,210 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "llm-orchestrator.fullname" . }}
+  labels:
+    {{- include "llm-orchestrator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "llm-orchestrator.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "llm-orchestrator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "llm-orchestrator.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "llm-orchestrator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- if .Values.initContainers }}
+      initContainers:
+        {{- toYaml .Values.initContainers | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: {{ include "llm-orchestrator.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - llm-orchestrator
+          - server
+          - --port
+          - "{{ .Values.config.serverPort }}"
+        ports:
+        - name: http
+          containerPort: {{ .Values.config.serverPort }}
+          protocol: TCP
+        - name: metrics
+          containerPort: {{ .Values.config.metricsPort }}
+          protocol: TCP
+        env:
+        # Logging configuration
+        - name: RUST_LOG
+          value: {{ .Values.config.logLevel }}
+        - name: LOG_FORMAT
+          value: {{ .Values.config.logFormat }}
+        # Server configuration
+        - name: SERVER_PORT
+          value: "{{ .Values.config.serverPort }}"
+        - name: METRICS_PORT
+          value: "{{ .Values.config.metricsPort }}"
+        # PostgreSQL configuration
+        - name: DATABASE_HOST
+          value: {{ include "llm-orchestrator.postgresql.host" . }}
+        - name: DATABASE_PORT
+          value: "{{ include "llm-orchestrator.postgresql.port" . }}"
+        - name: DATABASE_NAME
+          value: {{ include "llm-orchestrator.postgresql.database" . }}
+        - name: DATABASE_USER
+          value: {{ include "llm-orchestrator.postgresql.username" . }}
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "llm-orchestrator.postgresql.secretName" . }}
+              key: password
+        # Redis configuration
+        - name: REDIS_HOST
+          value: {{ include "llm-orchestrator.redis.host" . }}
+        - name: REDIS_PORT
+          value: "{{ include "llm-orchestrator.redis.port" . }}"
+        {{- if .Values.redis.auth.enabled }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "llm-orchestrator.redis.secretName" . }}
+              key: redis-password
+        {{- end }}
+        # Workflow configuration
+        - name: WORKFLOW_TIMEOUT
+          value: "{{ .Values.config.workflowTimeout }}"
+        - name: MAX_CONCURRENT_WORKFLOWS
+          value: "{{ .Values.config.maxConcurrentWorkflows }}"
+        # LLM Provider API Keys
+        {{- if .Values.llmProviders.anthropic.enabled }}
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.llmProviders.anthropic.apiKeySecret }}
+              key: {{ .Values.llmProviders.anthropic.apiKeySecretKey }}
+        {{- end }}
+        {{- if .Values.llmProviders.openai.enabled }}
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.llmProviders.openai.apiKeySecret }}
+              key: {{ .Values.llmProviders.openai.apiKeySecretKey }}
+        {{- end }}
+        {{- if .Values.llmProviders.cohere.enabled }}
+        - name: COHERE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.llmProviders.cohere.apiKeySecret }}
+              key: {{ .Values.llmProviders.cohere.apiKeySecretKey }}
+        {{- end }}
+        # Vector DB configuration
+        {{- if eq .Values.vectorDB.type "pinecone" }}
+        - name: PINECONE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.vectorDB.pinecone.apiKeySecret }}
+              key: {{ .Values.vectorDB.pinecone.apiKeySecretKey }}
+        - name: PINECONE_ENVIRONMENT
+          value: {{ .Values.vectorDB.pinecone.environment }}
+        - name: PINECONE_INDEX_NAME
+          value: {{ .Values.vectorDB.pinecone.indexName }}
+        {{- else if eq .Values.vectorDB.type "qdrant" }}
+        - name: QDRANT_URL
+          value: {{ .Values.vectorDB.qdrant.url }}
+        {{- if .Values.vectorDB.qdrant.apiKeySecret }}
+        - name: QDRANT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.vectorDB.qdrant.apiKeySecret }}
+              key: qdrant-api-key
+        {{- end }}
+        {{- else if eq .Values.vectorDB.type "weaviate" }}
+        - name: WEAVIATE_URL
+          value: {{ .Values.vectorDB.weaviate.url }}
+        {{- if .Values.vectorDB.weaviate.apiKeySecret }}
+        - name: WEAVIATE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.vectorDB.weaviate.apiKeySecret }}
+              key: weaviate-api-key
+        {{- end }}
+        {{- end }}
+        # Vault configuration (if enabled)
+        {{- if eq .Values.secrets.type "vault" }}
+        - name: VAULT_ADDR
+          value: {{ .Values.secrets.vault.address }}
+        - name: VAULT_AUTH_PATH
+          value: {{ .Values.secrets.vault.authPath }}
+        - name: VAULT_ROLE
+          value: {{ .Values.secrets.vault.role }}
+        - name: VAULT_SECRET_PATH
+          value: {{ .Values.secrets.vault.secretPath }}
+        {{- end }}
+        {{- with .Values.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.envFrom }}
+        envFrom:
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.lifecycle }}
+        lifecycle:
+          {{- toYaml .Values.lifecycle | nindent 12 }}
+        {{- end }}
+      {{- with .Values.sidecars }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      volumes:
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}

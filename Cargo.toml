@@ -5,6 +5,10 @@ members = [
     "crates/llm-orchestrator-providers",
     "crates/llm-orchestrator-cli",
     "crates/llm-orchestrator-sdk",
+    "crates/llm-orchestrator-state",
+    "crates/llm-orchestrator-auth",
+    "crates/llm-orchestrator-secrets",
+    "crates/llm-orchestrator-audit",
 ]
 
 [workspace.package]
@@ -65,6 +69,10 @@ rand = "0.8"
 # Testing
 mockito = "1.5"
 tokio-test = "0.4"
+
+# Security testing dependencies
+jsonwebtoken = "9.3"
+base64 = "0.22"
 
 [profile.release]
 opt-level = 3

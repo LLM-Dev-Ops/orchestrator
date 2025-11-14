@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llm-orchestrator
+    environment:
+      - RUST_LOG=info
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - ./examples:/home/orchestrator/workflows:ro
+      - ./logs:/home/orchestrator/logs
+    command: validate /home/orchestrator/workflows/simple.yaml
+    restart: unless-stopped
+
+  # PostgreSQL for state persistence (future use)
+  postgres:
+    image: postgres:16-alpine
+    container_name: llm-orchestrator-db
+    environment:
+      - POSTGRES_DB=orchestrator
+      - POSTGRES_USER=orchestrator
+      - POSTGRES_PASSWORD=orchestrator_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orchestrator"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching (future use)
+  redis:
+    image: redis:7-alpine
+    container_name: llm-orchestrator-cache
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+volumes:
+  postgres_data:
+    driver: local
