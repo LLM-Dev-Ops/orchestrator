@@ -11,7 +11,7 @@ description = "Core workflow orchestration engine for LLM pipelines"
 
 [dependencies]
 # Local crates
-llm-orchestrator-state = { path = "../llm-orchestrator-state", optional = true }
+llm-orchestrator-state = { version = "0.1.0", path = "../llm-orchestrator-state", optional = true }
 
 # Workspace dependencies
 tokio = { workspace = true }

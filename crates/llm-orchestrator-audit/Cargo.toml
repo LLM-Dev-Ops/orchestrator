@@ -8,6 +8,7 @@ repository.workspace = true
 homepage.workspace = true
 documentation.workspace = true
 rust-version.workspace = true
+description = "Tamper-proof audit logging system for LLM workflows with hash chain integrity"
 
 [dependencies]
 # Async runtime
