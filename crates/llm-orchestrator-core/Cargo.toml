@@ -1,0 +1,33 @@
+[package]
+name = "llm-orchestrator-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "Core workflow orchestration engine for LLM pipelines"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+petgraph = { workspace = true }
+handlebars = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }
+dashmap = { workspace = true }
+parking_lot = { workspace = true }
+rand = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }
+mockito = { workspace = true }

@@ -1,0 +1,30 @@
+[package]
+name = "llm-orchestrator-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "CLI for LLM Orchestrator"
+
+[[bin]]
+name = "llm-orchestrator"
+path = "src/main.rs"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+clap = { workspace = true }
+colored = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Local dependencies
+llm-orchestrator-core = { path = "../llm-orchestrator-core" }
+llm-orchestrator-providers = { path = "../llm-orchestrator-providers" }
+llm-orchestrator-sdk = { path = "../llm-orchestrator-sdk" }

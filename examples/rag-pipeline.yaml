@@ -1,0 +1,55 @@
+# RAG (Retrieval-Augmented Generation) Pipeline Example
+# This workflow retrieves relevant context from a vector database and generates an answer
+
+name: "rag-qa-pipeline"
+version: "1.0"
+description: "RAG-powered question answering system"
+
+steps:
+  # Step 1: Generate embedding for the query
+  - id: "embed_query"
+    type: "embed"
+    provider: "openai"
+    model: "text-embedding-3-small"
+    input: "{{ query }}"
+    output: ["query_embedding"]
+
+  # Step 2: Search vector database for relevant documents
+  - id: "search_docs"
+    type: "vector_search"
+    depends_on: ["embed_query"]
+    database: "pinecone"
+    index: "knowledge_base"
+    query: "{{ outputs.embed_query }}"
+    top_k: 5
+    include_metadata: true
+    output: ["search_results"]
+
+  # Step 3: Generate answer using retrieved context
+  - id: "generate_answer"
+    type: "llm"
+    depends_on: ["search_docs"]
+    provider: "anthropic"
+    model: "claude-3-5-sonnet-20241022"
+    prompt: |
+      Based on the following context, answer the question below.
+
+      Context:
+      {{ outputs.search_docs }}
+
+      Question: {{ query }}
+
+      Provide a detailed and accurate answer. If the context doesn't contain
+      relevant information, say so clearly.
+    temperature: 0.7
+    max_tokens: 500
+    output: ["answer"]
+
+  # Step 4: Generate citations
+  - id: "extract_citations"
+    type: "transform"
+    depends_on: ["search_docs"]
+    function: "extract_metadata"
+    inputs: ["{{ outputs.search_docs }}"]
+    fields: ["source", "title"]
+    output: ["citations"]

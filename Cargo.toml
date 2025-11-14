@@ -1,0 +1,73 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/llm-orchestrator-core",
+    "crates/llm-orchestrator-providers",
+    "crates/llm-orchestrator-cli",
+    "crates/llm-orchestrator-sdk",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["LLM DevOps Team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/llm-devops/llm-orchestrator"
+homepage = "https://llm-devops.io/orchestrator"
+documentation = "https://docs.rs/llm-orchestrator"
+rust-version = "1.75.0"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.48", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# Graph processing
+petgraph = "0.8"
+
+# Template engine
+handlebars = "6.0"
+
+# UUID
+uuid = { version = "1.11", features = ["v4", "serde"] }
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "cargo"] }
+colored = "2.1"
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Concurrency
+dashmap = "6.1"
+parking_lot = "0.12"
+
+# Random number generation
+rand = "0.8"
+
+# Testing
+mockito = "1.5"
+tokio-test = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

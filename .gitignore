@@ -1,0 +1,31 @@
+# Rust build artifacts
+/target/
+**/target/
+Cargo.lock
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Environment files
+.env
+.env.local
+
+# Test artifacts
+*.profraw
+*.profdata
+
+# Temporary files
+*.tmp
+*.bak
+
+# Claude Code artifacts
+.claude-flow/

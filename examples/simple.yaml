@@ -1,0 +1,26 @@
+name: simple-workflow
+version: "1.0"
+description: A simple workflow for testing
+
+steps:
+  - id: greet
+    type: llm
+    provider: openai
+    model: gpt-3.5-turbo
+    prompt: "Say hello to {{inputs.name}}"
+    temperature: 0.7
+    max_tokens: 50
+    output:
+      - greeting
+
+  - id: analyze
+    type: llm
+    depends_on:
+      - greet
+    provider: openai
+    model: gpt-3.5-turbo
+    prompt: "Analyze this greeting: {{steps.greet.greeting}}"
+    temperature: 0.5
+    max_tokens: 100
+    output:
+      - analysis

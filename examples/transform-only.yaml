@@ -1,0 +1,25 @@
+name: transform-workflow
+version: "1.0"
+description: A workflow with only transform steps for testing validation
+
+steps:
+  - id: merge_inputs
+    type: transform
+    function: merge
+    inputs:
+      - text1
+      - text2
+    output:
+      - merged
+
+  - id: filter_data
+    type: transform
+    depends_on:
+      - merge_inputs
+    function: filter
+    inputs:
+      - merged
+    key: status
+    value: active
+    output:
+      - filtered

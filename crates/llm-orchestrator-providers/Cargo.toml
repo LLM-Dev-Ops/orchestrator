@@ -1,0 +1,29 @@
+[package]
+name = "llm-orchestrator-providers"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "LLM provider integrations for LLM Orchestrator"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+reqwest = { workspace = true }
+tracing = { workspace = true }
+
+# Local dependencies
+llm-orchestrator-core = { path = "../llm-orchestrator-core" }
+
+[dev-dependencies]
+mockito = { workspace = true }
+tokio-test = { workspace = true }

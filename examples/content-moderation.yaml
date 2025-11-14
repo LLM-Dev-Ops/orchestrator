@@ -1,0 +1,65 @@
+# Content Moderation with Conditional Routing
+# This workflow classifies content and routes it based on moderation decision
+
+name: "content-moderation-router"
+version: "1.0"
+description: "Classify and route content based on moderation result"
+
+steps:
+  # Step 1: Moderate content
+  - id: "moderate_content"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4"
+    prompt: |
+      Classify this content as one of: safe, review, or block
+
+      Content: {{ input.content }}
+
+      Guidelines:
+      - safe: Appropriate content that can be published immediately
+      - review: Content that needs human review (borderline cases)
+      - block: Inappropriate content that should be blocked
+
+      Return only the classification (safe, review, or block)
+    temperature: 0.1
+    max_tokens: 10
+    output: ["moderation_result"]
+
+  # Step 2: Conditional branching based on moderation result
+  - id: "route_safe"
+    type: "action"
+    depends_on: ["moderate_content"]
+    condition: "{{ outputs.moderate_content }} == 'safe'"
+    action: "publish"
+    content: "{{ input.content }}"
+
+  - id: "route_review"
+    type: "action"
+    depends_on: ["moderate_content"]
+    condition: "{{ outputs.moderate_content }} == 'review'"
+    action: "queue_review"
+    content: "{{ input.content }}"
+    priority: "medium"
+
+  - id: "generate_block_explanation"
+    type: "llm"
+    depends_on: ["moderate_content"]
+    condition: "{{ outputs.moderate_content }} == 'block'"
+    provider: "anthropic"
+    model: "claude-3-5-haiku-20241022"
+    prompt: |
+      Generate a polite explanation for why this content was blocked:
+      {{ input.content }}
+
+      Be kind, specific, and provide guidance on acceptable alternatives.
+    temperature: 0.7
+    max_tokens: 150
+    output: ["block_reason"]
+
+  - id: "notify_user_blocked"
+    type: "action"
+    depends_on: ["generate_block_explanation"]
+    condition: "{{ outputs.moderate_content }} == 'block'"
+    action: "send_notification"
+    message: "{{ outputs.generate_block_explanation }}"

@@ -1,0 +1,42 @@
+# Sentiment Analysis Pipeline Example
+# This workflow analyzes the sentiment of text and generates an appropriate response
+
+name: "sentiment-analysis-pipeline"
+version: "1.0"
+description: "Analyze sentiment and generate empathetic response"
+
+steps:
+  # Step 1: Extract sentiment from input text
+  - id: "extract_sentiment"
+    type: "llm"
+    provider: "openai"
+    model: "gpt-4"
+    prompt: |
+      Analyze the sentiment of the following text:
+      {{ input.text }}
+
+      Return only one word: positive, negative, or neutral
+    temperature: 0.3
+    max_tokens: 10
+    output: ["sentiment"]
+
+  # Step 2: Generate empathetic response based on sentiment
+  - id: "generate_response"
+    type: "llm"
+    provider: "anthropic"
+    model: "claude-3-5-sonnet-20241022"
+    depends_on: ["extract_sentiment"]
+    prompt: |
+      The user's message has {{ outputs.extract_sentiment }} sentiment.
+      Generate an empathetic and helpful response to:
+      {{ input.text }}
+    temperature: 0.7
+    max_tokens: 200
+    output: ["response"]
+
+  # Step 3: Log the result (action step)
+  - id: "log_result"
+    type: "action"
+    depends_on: ["generate_response"]
+    action: "log"
+    message: "Sentiment: {{ outputs.extract_sentiment }}, Response generated: {{ outputs.generate_response }}"
