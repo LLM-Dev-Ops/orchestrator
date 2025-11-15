@@ -1,5 +1,5 @@
 # Multi-stage build for minimal production image
-FROM rust:1.83 AS builder
+FROM rustlang/rust:nightly AS builder
 
 WORKDIR /build
 
