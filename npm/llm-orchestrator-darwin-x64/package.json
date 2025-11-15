@@ -1,6 +1,6 @@
 {
   "name": "@llm-dev-ops/llm-orchestrator-darwin-x64",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "LLM Orchestrator CLI - macOS x64 binary",
   "repository": {
     "type": "git",
