@@ -28,3 +28,6 @@ tracing-subscriber = { workspace = true }
 llm-orchestrator-core = { version = "0.1.1", path = "../llm-orchestrator-core" }
 llm-orchestrator-providers = { version = "0.1.1", path = "../llm-orchestrator-providers" }
 llm-orchestrator-sdk = { version = "0.1.1", path = "../llm-orchestrator-sdk" }
+
+[features]
+vendored-openssl = ["llm-orchestrator-providers/vendored-openssl"]

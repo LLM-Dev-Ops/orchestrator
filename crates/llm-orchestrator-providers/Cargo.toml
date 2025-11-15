@@ -28,6 +28,7 @@ llm-orchestrator-secrets = { version = "0.1.1", path = "../llm-orchestrator-secr
 [features]
 default = []
 secrets = ["llm-orchestrator-secrets"]
+vendored-openssl = ["reqwest/native-tls-vendored"]
 
 [dev-dependencies]
 mockito = { workspace = true }
