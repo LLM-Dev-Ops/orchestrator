@@ -1,0 +1,15 @@
+{
+  "target_id": "multi_model_routing",
+  "metrics": {
+    "avg_lookup_ns": 16.9905,
+    "cache_hits": 40000,
+    "cache_misses": 10000,
+    "duration_ms": 0.849525,
+    "hit_rate": 0.8,
+    "iterations": 10000,
+    "ops_per_sec": 58856419.76398576,
+    "registered_providers": 10,
+    "total_lookups": 50000
+  },
+  "timestamp": "2025-12-02T01:39:22.352427507Z"
+}

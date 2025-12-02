@@ -1869,12 +1869,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "llm-orchestrator-benchmarks"
+version = "0.1.5"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "dashmap",
+ "llm-orchestrator-core",
+ "llm-orchestrator-providers",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-test",
+ "uuid",
+]
+
+[[package]]
 name = "llm-orchestrator-cli"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "chrono",
  "clap",
  "colored 2.2.0",
+ "llm-orchestrator-benchmarks",
  "llm-orchestrator-core",
  "llm-orchestrator-providers",
  "llm-orchestrator-sdk",

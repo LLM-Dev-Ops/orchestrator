@@ -1,0 +1,28 @@
+[package]
+name = "llm-orchestrator-benchmarks"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+description = "Canonical benchmark suite for LLM Orchestrator"
+
+[dependencies]
+# Local crates
+llm-orchestrator-core = { version = "0.1.1", path = "../llm-orchestrator-core" }
+llm-orchestrator-providers = { version = "0.1.1", path = "../llm-orchestrator-providers" }
+
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+async-trait = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+dashmap = { workspace = true }
+
+[dev-dependencies]
+tokio-test = { workspace = true }

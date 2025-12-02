@@ -6,6 +6,10 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use colored::Colorize;
+use llm_orchestrator_benchmarks::{
+    benchmarks::io::{write_raw_results, write_summary},
+    run_all_benchmarks,
+};
 use llm_orchestrator_core::workflow::Workflow;
 use llm_orchestrator_core::{LLMProvider, WorkflowDAG, WorkflowExecutor};
 use llm_orchestrator_providers::{AnthropicProvider, OpenAIProvider};
@@ -52,6 +56,21 @@ enum Commands {
         #[arg(long, default_value = "4")]
         max_concurrency: usize,
     },
+
+    /// Run the canonical benchmark suite
+    Benchmark {
+        /// Output directory for benchmark results
+        #[arg(short, long, default_value = "benchmarks/output")]
+        output: String,
+
+        /// Output format: json, markdown, or both
+        #[arg(short, long, default_value = "both")]
+        format: String,
+
+        /// Run benchmarks quietly (no progress output)
+        #[arg(short, long)]
+        quiet: bool,
+    },
 }
 
 #[tokio::main]
@@ -80,6 +99,11 @@ async fn main() {
             input,
             max_concurrency,
         } => run_workflow(&file, input.as_deref(), max_concurrency).await,
+        Commands::Benchmark {
+            output,
+            format,
+            quiet,
+        } => run_benchmarks(&output, &format, quiet).await,
     };
 
     if let Err(e) = result {
@@ -218,4 +242,94 @@ fn parse_input(input_str: &str) -> Result<HashMap<String, Value>> {
         serde_json::from_str(input_str)
             .with_context(|| "Failed to parse input JSON string")
     }
+}
+
+/// Runs the canonical benchmark suite.
+async fn run_benchmarks(output_dir: &str, format: &str, quiet: bool) -> Result<()> {
+    if !quiet {
+        println!("{}", "Running LLM Orchestrator Benchmarks...".cyan().bold());
+        println!();
+    }
+
+    info!("Starting benchmark suite");
+
+    // Run all benchmarks
+    let results = run_all_benchmarks().await;
+
+    if !quiet {
+        println!(
+            "{} {} benchmarks",
+            "✓ Completed".green().bold(),
+            results.len()
+        );
+        println!();
+
+        // Print summary
+        for result in &results {
+            let duration = result
+                .metrics
+                .get("duration_ms")
+                .and_then(|v| v.as_f64())
+                .map(|d| format!("{:.2}ms", d))
+                .unwrap_or_else(|| "N/A".to_string());
+
+            let ops = result
+                .metrics
+                .get("ops_per_sec")
+                .and_then(|v| v.as_f64())
+                .map(|o| format!("{:.0} ops/sec", o))
+                .unwrap_or_else(|| "".to_string());
+
+            println!(
+                "  {} {} - {} {}",
+                "●".green(),
+                result.target_id.cyan(),
+                duration,
+                ops.dimmed()
+            );
+        }
+        println!();
+    }
+
+    // Create output directory
+    fs::create_dir_all(output_dir)
+        .with_context(|| format!("Failed to create output directory: {}", output_dir))?;
+
+    // Write output based on format
+    let write_json = format == "json" || format == "both";
+    let write_md = format == "markdown" || format == "both";
+
+    if write_json {
+        let paths = write_raw_results(&results, output_dir)
+            .with_context(|| "Failed to write raw benchmark results")?;
+
+        if !quiet {
+            println!("{} JSON results written:", "✓".green().bold());
+            for path in &paths {
+                println!("  {}", path.dimmed());
+            }
+        }
+    }
+
+    if write_md {
+        let summary_path = write_summary(&results, output_dir)
+            .with_context(|| "Failed to write benchmark summary")?;
+
+        if !quiet {
+            println!(
+                "{} Summary written: {}",
+                "✓".green().bold(),
+                summary_path.dimmed()
+            );
+        }
+    }
+
+    if !quiet {
+        println!();
+        println!("{}", "Benchmark suite completed successfully!".green().bold());
+    }
+
+    info!("Benchmark suite completed with {} results", results.len());
+
+    Ok(())
 }

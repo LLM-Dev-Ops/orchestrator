@@ -9,6 +9,7 @@ members = [
     "crates/llm-orchestrator-auth",
     "crates/llm-orchestrator-secrets",
     "crates/llm-orchestrator-audit",
+    "crates/llm-orchestrator-benchmarks",
 ]
 
 [workspace.package]

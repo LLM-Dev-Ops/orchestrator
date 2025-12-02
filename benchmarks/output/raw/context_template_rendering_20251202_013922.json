@@ -1,0 +1,13 @@
+{
+  "target_id": "context_template_rendering",
+  "metrics": {
+    "avg_render_us": 7.996,
+    "duration_ms": 23.988705,
+    "iterations": 1000,
+    "ops_per_sec": 125058.85582402219,
+    "successful_renders": 3000,
+    "templates_tested": 3,
+    "total_renders": 3000
+  },
+  "timestamp": "2025-12-02T01:39:22.351570639Z"
+}

@@ -1,0 +1,12 @@
+{
+  "target_id": "parallel_step_coordination",
+  "metrics": {
+    "avg_coordination_overhead_us": 46.06,
+    "duration_ms": 4.606421999999999,
+    "iterations": 100,
+    "ops_per_sec": 434176.4606021767,
+    "parallel_steps_per_iteration": 20,
+    "total_step_operations": 2000
+  },
+  "timestamp": "2025-12-02T01:39:22.327555074Z"
+}
