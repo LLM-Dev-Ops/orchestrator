@@ -54,6 +54,9 @@ pub mod providers;
 pub mod retry;
 pub mod workflow;
 
+// Phase 2B: Thin adapter modules for upstream dependency integration
+pub mod adapters;
+
 // Re-export commonly used types
 pub use context::ExecutionContext;
 pub use dag::WorkflowDAG;

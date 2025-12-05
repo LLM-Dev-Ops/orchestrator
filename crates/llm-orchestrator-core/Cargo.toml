@@ -37,9 +37,27 @@ prometheus = { version = "0.13", features = ["process"] }
 lazy_static = "1.4"
 reqwest = { workspace = true }
 
+# =============================================================================
+# Phase 2B: Upstream Module Dependencies (Runtime Integration)
+# =============================================================================
+# These are thin adapter integrations - actual upstream crates are declared
+# at the workspace level. The adapters use workspace-level chrono for timestamps.
+
 [features]
 default = []
 state-persistence = ["llm-orchestrator-state"]
+
+# Feature flags for optional upstream integrations
+memory-graph = []
+connector-hub = []
+data-vault = []
+simulator = []
+router-l2 = []
+auto-optimizer = []
+observatory = []
+
+# Enable all upstream integrations
+all-adapters = ["memory-graph", "connector-hub", "data-vault", "simulator", "router-l2", "auto-optimizer", "observatory"]
 
 [dev-dependencies]
 tokio-test = { workspace = true }
