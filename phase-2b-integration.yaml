@@ -1,0 +1,362 @@
+# =============================================================================
+# LLM-Orchestrator Phase 2B Integration Configuration
+# =============================================================================
+# This file documents the Phase 2B Infra integration for LLM-Orchestrator.
+# Generated: 2025-12-06
+# Status: Phase 2B Compliant
+
+repository:
+  name: LLM-Orchestrator
+  role: Central workflow and pipeline engine for the LLM DevOps platform
+  version: "0.1.5"
+  phase: "2B"
+
+# =============================================================================
+# Phase 1: Exposes-To (Downstream Consumers)
+# =============================================================================
+# Modules that depend on Orchestrator (downstream dependencies)
+exposes_to:
+  - name: llm-gateway
+    interface: WorkflowExecutor API
+    description: Gateway consumes Orchestrator for workflow execution
+  - name: llm-agents
+    interface: Pipeline orchestration API
+    description: Agents consume Orchestrator for multi-step task execution
+  - name: llm-dashboard
+    interface: Workflow status and monitoring API
+    description: Dashboard consumes Orchestrator metrics and status
+
+# =============================================================================
+# Phase 2A: Upstream Dependencies (Compile-Time)
+# =============================================================================
+# External modules that Orchestrator depends on (upstream dependencies)
+# All verified to have NO circular dependencies on Orchestrator
+upstream_dependencies:
+  - name: llm-memory-graph
+    git: https://github.com/LLM-Dev-Ops/memory-graph
+    branch: main
+    purpose: Graph-based memory management and lineage tracking
+    circular_dependency_check: PASSED
+
+  - name: llm-connector-hub
+    git: https://github.com/LLM-Dev-Ops/connector-hub
+    branch: main
+    purpose: Unified connector interface for multi-provider routing
+    circular_dependency_check: PASSED
+
+  - name: llm-data-vault
+    git: https://github.com/LLM-Dev-Ops/data-vault
+    branch: main
+    purpose: Secure data storage and encryption for artifacts
+    circular_dependency_check: PASSED
+
+  - name: llm-simulator
+    git: https://github.com/LLM-Dev-Ops/simulator
+    branch: main
+    purpose: Offline LLM API simulation for testing
+    circular_dependency_check: PASSED
+
+  - name: llm-router-l2
+    git: https://github.com/LLM-Dev-Ops/router-l2
+    branch: main
+    purpose: External routing layer for workflow navigation
+    circular_dependency_check: PASSED
+
+  - name: llm-optimizer
+    git: https://github.com/LLM-Dev-Ops/auto-optimizer
+    branch: main
+    purpose: Automatic performance optimization and self-correction
+    circular_dependency_check: PASSED
+
+  - name: llm-observatory-core
+    git: https://github.com/LLM-Dev-Ops/observatory
+    branch: main
+    purpose: Observability, monitoring, and telemetry
+    circular_dependency_check: PASSED
+
+# =============================================================================
+# Phase 2B: LLM-Infra Core Integration
+# =============================================================================
+# Core infrastructure modules consumed from LLM-Infra
+infra_integration:
+  rust_crates:
+    - name: llm-infra
+      git: https://github.com/LLM-Dev-Ops/infra
+      branch: main
+      features:
+        - config        # Configuration loading and management
+        - logging       # Structured logging utilities
+        - tracing       # Distributed tracing support
+        - error         # Error handling utilities and types
+        - cache         # Caching primitives (TTL, LRU)
+        - retry         # Retry logic with backoff strategies
+        - rate-limit    # Rate limiting utilities
+        - circuit-breaker # Circuit breaker pattern implementation
+      consumption_points:
+        - module: llm-orchestrator-core
+          usage: Core workflow execution utilities
+        - module: llm-orchestrator-providers
+          usage: Provider error handling and retry
+        - module: llm-orchestrator-secrets
+          usage: Cache layer for secret management
+
+    - name: llm-infra-client
+      git: https://github.com/LLM-Dev-Ops/infra
+      branch: main
+      features:
+        - routing       # LLM request routing
+        - execution     # Execution planning
+        - evaluation    # Evaluation feedback loops
+      consumption_points:
+        - module: llm-orchestrator-core/adapters
+          usage: LLM client abstractions for workflow steps
+
+  typescript_packages:
+    - name: "@llm-dev-ops/infra"
+      version: "^0.1.0"
+      type: dependency
+      usage: TypeScript SDK infrastructure utilities
+
+# =============================================================================
+# Phase 2B: Adapter Modules
+# =============================================================================
+# Thin adapter modules that consume upstream dependencies
+adapters:
+  - name: MemoryGraphAdapter
+    file: crates/llm-orchestrator-core/src/adapters/memory_graph.rs
+    upstream: llm-memory-graph
+    feature_flag: memory-graph
+    purpose: Lineage tracking and context history ingestion
+    status: implemented
+
+  - name: ConnectorHubAdapter
+    file: crates/llm-orchestrator-core/src/adapters/connector_hub.rs
+    upstream: llm-connector-hub
+    feature_flag: connector-hub
+    purpose: Multi-provider routing and failover
+    status: implemented
+
+  - name: DataVaultAdapter
+    file: crates/llm-orchestrator-core/src/adapters/data_vault.rs
+    upstream: llm-data-vault
+    feature_flag: data-vault
+    purpose: Secure artifact and intermediate result persistence
+    status: implemented
+
+  - name: SimulatorAdapter
+    file: crates/llm-orchestrator-core/src/adapters/simulator.rs
+    upstream: llm-simulator
+    feature_flag: simulator
+    purpose: Offline workflow step simulation
+    status: implemented
+
+  - name: RouterL2Adapter
+    file: crates/llm-orchestrator-core/src/adapters/router_l2.rs
+    upstream: llm-router-l2
+    feature_flag: router-l2
+    purpose: Graph-based routing decisions
+    status: implemented
+
+  - name: AutoOptimizerAdapter
+    file: crates/llm-orchestrator-core/src/adapters/auto_optimizer.rs
+    upstream: llm-optimizer
+    feature_flag: auto-optimizer
+    purpose: Self-correction and optimization recommendations
+    status: implemented
+
+  - name: ObservatoryAdapter
+    file: crates/llm-orchestrator-core/src/adapters/observatory.rs
+    upstream: llm-observatory-core
+    feature_flag: observatory
+    purpose: Telemetry, events, and runtime metrics
+    status: implemented
+
+# =============================================================================
+# Feature Flags
+# =============================================================================
+feature_flags:
+  core_features:
+    - name: default
+      enabled_by_default: true
+      dependencies: []
+
+    - name: state-persistence
+      enabled_by_default: false
+      dependencies: ["llm-orchestrator-state"]
+
+  infra_features:
+    - name: infra
+      enabled_by_default: false
+      dependencies: ["llm-infra", "llm-infra-client"]
+      description: Enable all Infra utilities
+
+    - name: infra-config
+      dependencies: ["llm-infra"]
+
+    - name: infra-logging
+      dependencies: ["llm-infra"]
+
+    - name: infra-tracing
+      dependencies: ["llm-infra"]
+
+    - name: infra-error
+      dependencies: ["llm-infra"]
+
+    - name: infra-cache
+      dependencies: ["llm-infra"]
+
+    - name: infra-retry
+      dependencies: ["llm-infra"]
+
+    - name: infra-rate-limit
+      dependencies: ["llm-infra"]
+
+    - name: infra-circuit-breaker
+      dependencies: ["llm-infra"]
+
+    - name: infra-llm-routing
+      dependencies: ["llm-infra-client"]
+
+    - name: infra-llm-execution
+      dependencies: ["llm-infra-client"]
+
+    - name: infra-llm-evaluation
+      dependencies: ["llm-infra-client"]
+
+  adapter_features:
+    - name: memory-graph
+      dependencies: ["llm-memory-graph"]
+
+    - name: connector-hub
+      dependencies: ["llm-connector-hub"]
+
+    - name: data-vault
+      dependencies: ["llm-data-vault"]
+
+    - name: simulator
+      dependencies: ["llm-simulator"]
+
+    - name: router-l2
+      dependencies: ["llm-router-l2"]
+
+    - name: auto-optimizer
+      dependencies: ["llm-optimizer"]
+
+    - name: observatory
+      dependencies: ["llm-observatory-core"]
+
+  composite_features:
+    - name: all-adapters
+      dependencies: ["memory-graph", "connector-hub", "data-vault", "simulator", "router-l2", "auto-optimizer", "observatory"]
+
+    - name: full-integration
+      dependencies: ["infra", "all-adapters"]
+      description: Enable all Infra + all adapters (full Phase 2B)
+
+# =============================================================================
+# Internal Implementations to Review for Potential Infra Consumption
+# =============================================================================
+# These are existing internal implementations that could be replaced or
+# enhanced by consuming equivalent Infra modules.
+internal_implementations:
+  - name: Error handling
+    file: crates/llm-orchestrator-core/src/error.rs
+    infra_equivalent: llm-infra/error
+    status: KEEP_INTERNAL
+    rationale: Orchestrator-specific error types are well-suited for workflow context
+
+  - name: Retry logic
+    file: crates/llm-orchestrator-core/src/retry.rs
+    infra_equivalent: llm-infra/retry
+    status: KEEP_INTERNAL
+    rationale: Tightly integrated with OrchestratorError::is_retryable()
+
+  - name: Secret caching
+    file: crates/llm-orchestrator-secrets/src/cache.rs
+    infra_equivalent: llm-infra/cache
+    status: ENHANCE_WITH_INFRA
+    rationale: Can benefit from shared cache primitives
+
+  - name: Provider traits
+    file: crates/llm-orchestrator-providers/src/traits.rs
+    infra_equivalent: llm-infra-client/routing
+    status: ENHANCE_WITH_INFRA
+    rationale: Can consume routing abstractions from Infra
+
+# =============================================================================
+# Circular Dependency Verification
+# =============================================================================
+circular_dependency_check:
+  status: PASSED
+  verification_date: "2025-12-06"
+  methodology: >
+    All upstream dependencies were verified to NOT contain any imports,
+    dependencies, or references to llm-orchestrator or any of its crates.
+    The dependency graph flows strictly upstream from Orchestrator.
+  verified_modules:
+    - llm-memory-graph: CLEAN
+    - llm-connector-hub: CLEAN
+    - llm-data-vault: CLEAN
+    - llm-simulator: CLEAN
+    - llm-router-l2: CLEAN
+    - llm-optimizer: CLEAN
+    - llm-observatory-core: CLEAN
+    - llm-infra: CLEAN
+    - llm-infra-client: CLEAN
+
+# =============================================================================
+# Updated Files Summary
+# =============================================================================
+updated_files:
+  - path: Cargo.toml
+    changes:
+      - Added llm-infra workspace dependency with feature flags
+      - Added llm-infra-client workspace dependency with feature flags
+
+  - path: crates/llm-orchestrator-core/Cargo.toml
+    changes:
+      - Added llm-infra as optional dependency
+      - Added llm-infra-client as optional dependency
+      - Added upstream module dependencies (llm-memory-graph, etc.)
+      - Added Infra feature flags (infra-config, infra-logging, etc.)
+      - Added full-integration composite feature
+
+  - path: npm/llm-orchestrator/package.json
+    changes:
+      - Added @llm-dev-ops/infra as dependency
+      - Added @llm-dev-ops/infra as peerDependency
+      - Added keywords for discoverability
+
+# =============================================================================
+# Remaining Gaps (For Future Work)
+# =============================================================================
+remaining_gaps:
+  - name: Rate limiting integration
+    description: >
+      Orchestrator's workflow executor could benefit from consuming
+      llm-infra rate limiting for provider call throttling.
+    priority: medium
+
+  - name: Circuit breaker integration
+    description: >
+      Provider health checking could be enhanced with circuit breaker
+      pattern from llm-infra.
+    priority: medium
+
+  - name: Distributed tracing propagation
+    description: >
+      Observatory adapter could propagate trace context using
+      llm-infra tracing utilities.
+    priority: low
+
+  - name: Unified cache layer
+    description: >
+      Multiple cache implementations (secrets, state) could be
+      consolidated using llm-infra cache primitives.
+    priority: low
+
+# =============================================================================
+# Next Steps in Integration Sequence
+# =============================================================================
+next_repository: llm-gateway
+integration_sequence_position: 2

@@ -19,11 +19,19 @@
     "openai",
     "anthropic",
     "claude",
-    "gpt"
+    "gpt",
+    "infra",
+    "pipeline"
   ],
   "author": "LLM DevOps Team",
   "license": "Apache-2.0",
   "homepage": "https://github.com/globalbusinessadvisors/llm-orchestrator",
+  "dependencies": {
+    "@llm-dev-ops/infra": "^0.1.0"
+  },
+  "peerDependencies": {
+    "@llm-dev-ops/infra": ">=0.1.0"
+  },
   "optionalDependencies": {
     "@llm-dev-ops/llm-orchestrator-linux-x64": "0.1.5",
     "@llm-dev-ops/llm-orchestrator-linux-arm64": "0.1.5",

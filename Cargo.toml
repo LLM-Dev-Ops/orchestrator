@@ -103,6 +103,32 @@ llm-optimizer = { git = "https://github.com/LLM-Dev-Ops/auto-optimizer", branch 
 # LLM-Observatory: Observability and monitoring
 llm-observatory-core = { git = "https://github.com/LLM-Dev-Ops/observatory", branch = "main" }
 
+# =============================================================================
+# Phase 2B: LLM-Infra Core Infrastructure Modules
+# =============================================================================
+# Core infrastructure utilities consumed by Orchestrator for workflow execution,
+# multistep pipeline orchestration, configuration loading, logging, tracing,
+# error utilities, caching, retry logic, rate limiting, and circuit breaking.
+
+# LLM-Infra: Core infrastructure crate providing shared utilities
+llm-infra = { git = "https://github.com/LLM-Dev-Ops/infra", branch = "main", features = [
+    "config",       # Configuration loading and management
+    "logging",      # Structured logging utilities
+    "tracing",      # Distributed tracing support
+    "error",        # Error handling utilities and types
+    "cache",        # Caching primitives (TTL, LRU)
+    "retry",        # Retry logic with backoff strategies
+    "rate-limit",   # Rate limiting utilities
+    "circuit-breaker", # Circuit breaker pattern implementation
+] }
+
+# LLM-Infra LLM Client: Unified LLM client abstractions
+llm-infra-client = { git = "https://github.com/LLM-Dev-Ops/infra", branch = "main", features = [
+    "routing",      # LLM request routing
+    "execution",    # Execution planning
+    "evaluation",   # Evaluation feedback loops
+] }
+
 [profile.release]
 opt-level = 3
 lto = true

@@ -43,21 +43,64 @@ reqwest = { workspace = true }
 # These are thin adapter integrations - actual upstream crates are declared
 # at the workspace level. The adapters use workspace-level chrono for timestamps.
 
+# LLM-Infra core infrastructure (optional, feature-gated)
+llm-infra = { workspace = true, optional = true }
+llm-infra-client = { workspace = true, optional = true }
+
+# Upstream module dependencies (optional, feature-gated)
+llm-memory-graph = { workspace = true, optional = true }
+llm-connector-hub = { workspace = true, optional = true }
+llm-data-vault = { workspace = true, optional = true }
+llm-simulator = { workspace = true, optional = true }
+llm-router-l2 = { workspace = true, optional = true }
+llm-optimizer = { workspace = true, optional = true }
+llm-observatory-core = { workspace = true, optional = true }
+
 [features]
 default = []
 state-persistence = ["llm-orchestrator-state"]
 
-# Feature flags for optional upstream integrations
-memory-graph = []
-connector-hub = []
-data-vault = []
-simulator = []
-router-l2 = []
-auto-optimizer = []
-observatory = []
+# =============================================================================
+# Phase 2B: LLM-Infra Core Infrastructure Features
+# =============================================================================
+# Enable consumption of LLM-Infra modules for shared infrastructure utilities.
+
+# Core Infra integration (enables all Infra utilities)
+infra = ["llm-infra", "llm-infra-client"]
+
+# Individual Infra feature consumption
+infra-config = ["llm-infra"]
+infra-logging = ["llm-infra"]
+infra-tracing = ["llm-infra"]
+infra-error = ["llm-infra"]
+infra-cache = ["llm-infra"]
+infra-retry = ["llm-infra"]
+infra-rate-limit = ["llm-infra"]
+infra-circuit-breaker = ["llm-infra"]
+
+# LLM Client abstractions
+infra-llm-routing = ["llm-infra-client"]
+infra-llm-execution = ["llm-infra-client"]
+infra-llm-evaluation = ["llm-infra-client"]
+
+# =============================================================================
+# Phase 2A/2B: Upstream Module Adapter Features
+# =============================================================================
+# Feature flags for optional upstream integrations via thin adapters.
+
+memory-graph = ["llm-memory-graph"]
+connector-hub = ["llm-connector-hub"]
+data-vault = ["llm-data-vault"]
+simulator = ["llm-simulator"]
+router-l2 = ["llm-router-l2"]
+auto-optimizer = ["llm-optimizer"]
+observatory = ["llm-observatory-core"]
 
 # Enable all upstream integrations
 all-adapters = ["memory-graph", "connector-hub", "data-vault", "simulator", "router-l2", "auto-optimizer", "observatory"]
+
+# Enable all Infra + all adapters (full Phase 2B integration)
+full-integration = ["infra", "all-adapters"]
 
 [dev-dependencies]
 tokio-test = { workspace = true }
