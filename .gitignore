@@ -29,3 +29,6 @@ package-lock.json
 
 # Claude Code artifacts
 .claude-flow/
+.claude/
+.mcp.json
+CLAUDE.md
