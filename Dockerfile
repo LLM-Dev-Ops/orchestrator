@@ -3,21 +3,16 @@ FROM rustlang/rust:nightly AS builder
 
 WORKDIR /build
 
-# Copy manifests
+# Copy all source code (no dummy file caching - cleaner approach)
 COPY Cargo.toml Cargo.lock ./
 COPY crates/ ./crates/
 
-# Build dependencies (cached layer)
-RUN mkdir -p crates/llm-orchestrator-cli/src && \
-    echo "fn main() {}" > crates/llm-orchestrator-cli/src/main.rs && \
-    cargo build --release && \
-    rm -rf crates/llm-orchestrator-cli/src
-
-# Copy source code
-COPY crates/ ./crates/
-
-# Build application
+# Build the release binary
 RUN cargo build --release --bin llm-orchestrator
+
+# Verify the binary was built
+RUN ls -la /build/target/release/llm-orchestrator && \
+    /build/target/release/llm-orchestrator --version
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -27,6 +22,7 @@ RUN apt-get update && \
     apt-get install -y \
     ca-certificates \
     libssl3 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -44,10 +40,10 @@ USER orchestrator
 # Set working directory
 WORKDIR /home/orchestrator
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD llm-orchestrator --version || exit 1
+# Health check - uses the HTTP health endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -sf http://localhost:8080/health || exit 1
 
-# Default command
+# Default command - serve for Cloud Run
 ENTRYPOINT ["llm-orchestrator"]
-CMD ["--help"]
+CMD ["serve"]

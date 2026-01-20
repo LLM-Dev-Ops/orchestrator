@@ -31,6 +31,9 @@ pub mod simulator;
 pub mod router_l2;
 pub mod auto_optimizer;
 pub mod observatory;
+pub mod task_scheduler;
+pub mod ruvector_service;
+pub mod retry_recovery;
 
 // Re-export adapter traits and types for convenient access
 pub use memory_graph::{MemoryGraphAdapter, LineageRecord, ContextHistoryEntry};
@@ -40,3 +43,24 @@ pub use simulator::{SimulatorAdapter, SimulationConfig, SimulationResult};
 pub use router_l2::{RouterL2Adapter, RoutingDecision, GraphNavigator};
 pub use auto_optimizer::{AutoOptimizerAdapter, OptimizationRecommendation, CorrectionParams};
 pub use observatory::{ObservatoryAdapter, TelemetryEvent, WorkflowMetrics};
+pub use task_scheduler::{
+    TaskSchedulerAgent, ScheduleRequest, ScheduleResult, DecisionEvent,
+    ScheduleType, ScheduleStatus, TriggerType, TriggerConfig,
+    DependencyConstraint, DependencyStatus, ScheduleRetryPolicy,
+    SchedulerError, ScheduleInspection, ScheduleDecisionDetails,
+    AGENT_ID as TASK_SCHEDULER_AGENT_ID,
+    AGENT_VERSION as TASK_SCHEDULER_AGENT_VERSION,
+};
+pub use ruvector_service::{
+    RuVectorServiceClient, DecisionEventRecord, WorkflowStateRecord,
+    TaskExecutionRecord, PersistenceResult, RuVectorError,
+};
+pub use retry_recovery::{
+    RetryRecoveryAgent, RecoveryRequest, RecoveryDecision, RecoveryError,
+    RecoveryActionType, BackoffStrategy, ErrorCategory, RetryEligibility,
+    FailureDetails, RetryConfig, ErrorAnalysis, StateTransition,
+    TaskState as RetryTaskState, DecisionReasoning,
+    RetryDecisionEvent, ExecutionRef as RetryExecutionRef, RetryInspection,
+    AGENT_ID as RETRY_RECOVERY_AGENT_ID,
+    AGENT_VERSION as RETRY_RECOVERY_AGENT_VERSION,
+};

@@ -57,6 +57,9 @@ pub mod workflow;
 // Phase 2B: Thin adapter modules for upstream dependency integration
 pub mod adapters;
 
+// Agent implementations according to the Agent Infrastructure Constitution
+pub mod agents;
+
 // Re-export commonly used types
 pub use context::ExecutionContext;
 pub use dag::WorkflowDAG;
@@ -69,6 +72,68 @@ pub use workflow::{
     LlmStepConfig, EmbedStepConfig, VectorSearchConfig,
     TransformConfig, ActionConfig, ParallelConfig, BranchConfig,
     RetryConfig, BackoffStrategy,
+};
+
+// Re-export agent types
+pub use agents::{
+    WorkflowOrchestratorAgent, AgentConfig,
+    ExecuteRequest, ExecuteResponse,
+    ScheduleRequest as AgentScheduleRequest, ScheduleResponse,
+    InspectRequest, InspectResponse,
+    ReplayRequest, ReplayResponse,
+};
+
+// Re-export Dependency Resolver Agent types
+pub use agents::{
+    DependencyResolverAgent, DependencyResolverConfig,
+    DependencyResolveRequest, DependencyResolveResponse,
+    TaskNode, ResolutionConfig, ResolutionStatus,
+    ParallelGroup, GraphSummary, DependencyIssue,
+    IssueSeverity, IssueType, CriticalPath, ResolutionMetrics,
+    DependencyInspectRequest, DependencyInspectResponse,
+    DependencyReplayRequest, DependencyReplayResponse,
+    DependencyValidateRequest, DependencyValidateResponse,
+    DEPENDENCY_RESOLVER_VERSION, DEPENDENCY_RESOLVER_ID_PREFIX,
+};
+
+// Re-export Parallelization Agent types
+pub use agents::{
+    ParallelizationAgent, ParallelizationAgentConfig,
+    ParallelInspectResponse,
+};
+
+// Re-export Swarm Coordinator Agent types
+pub use agents::{
+    SwarmCoordinatorAgent, SwarmCoordinatorAgentConfig,
+    SwarmInspectResponse,
+};
+
+// Re-export State Machine Agent types (includes contract re-exports)
+pub use agents::{
+    StateMachineAgent, StateMachineAgentConfig,
+    EntityType, StateTransitionRequest, StateTransitionResponse,
+    StateInspectRequest, StateInspectResponse,
+    StateHistoryRequest, StateHistoryResponse,
+    StateReplayRequest, StateReplayResponse,
+    StateMachineDefinition, TransitionRule, TransitionRuleType,
+    TransitionStatus, TransitionValidation, RuleViolation, StateHistoryEntry,
+};
+
+// Re-export additional contract types that the CLI needs
+pub use agentics_contracts::{
+    // Parallelization contract types
+    ParallelizationRequest, ParallelizationResult, ParallelizationConfig,
+    ParallelizationStatus, ParallelExecutionPlan, ExecutionPhase,
+    ParallelTask, ResourceConstraints, TaskResources,
+    ParallelizationIssueSeverity,
+    // Swarm coordinator contract types
+    SwarmCoordinationRequest, SwarmCoordinationResult,
+    SwarmCoordinatorConfig as SwarmCoordinatorContractConfig,
+    SwarmObjective, ObjectiveType, SuccessCriterion, ValidationRule,
+    WorkerSpec, WorkerAgentType, WorkerTask, WorkerConfig,
+    ConsensusStrategy, AggregationStrategy,
+    SwarmCoordinationStatus, AggregatedOutput, CoordinationSummary,
+    WorkerResult, WorkerStatus,
 };
 
 /// Library version.

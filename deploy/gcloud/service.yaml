@@ -1,0 +1,122 @@
+# Copyright (c) 2025 LLM DevOps
+# SPDX-License-Identifier: Apache-2.0
+#
+# Cloud Run Service Configuration for LLM-Orchestrator
+# Unified service exposing all orchestration agents
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: llm-orchestrator
+  labels:
+    cloud.googleapis.com/location: us-central1
+    app: llm-orchestrator
+    platform: agentics
+  annotations:
+    run.googleapis.com/description: "LLM-Orchestrator - Central Workflow Execution & Coordination Layer"
+    run.googleapis.com/ingress: all
+    run.googleapis.com/launch-stage: GA
+spec:
+  template:
+    metadata:
+      annotations:
+        # Scaling configuration
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/cpu-throttling: "false"
+        run.googleapis.com/startup-cpu-boost: "true"
+
+        # Execution environment
+        run.googleapis.com/execution-environment: gen2
+
+        # VPC connector for internal service communication
+        # run.googleapis.com/vpc-access-connector: projects/agentics-dev/locations/us-central1/connectors/agentics-vpc-connector
+        # run.googleapis.com/vpc-access-egress: private-ranges-only
+
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: llm-orchestrator-sa@agentics-dev.iam.gserviceaccount.com
+
+      containers:
+        - name: llm-orchestrator
+          image: gcr.io/agentics-dev/llm-orchestrator:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+
+          env:
+            # Service identification
+            - name: SERVICE_NAME
+              value: "llm-orchestrator"
+            - name: SERVICE_VERSION
+              value: "0.1.5"
+            - name: PLATFORM_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: platform-env
+                  key: latest
+
+            # RuVector Service (persistence layer)
+            - name: RUVECTOR_SERVICE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ruvector-service-url
+                  key: latest
+            - name: RUVECTOR_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ruvector-api-key
+                  key: latest
+
+            # Telemetry (LLM-Observatory)
+            - name: TELEMETRY_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: observatory-endpoint
+                  key: latest
+
+            # Logging
+            - name: RUST_LOG
+              value: "info,llm_orchestrator=debug"
+            - name: RUST_BACKTRACE
+              value: "1"
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+  traffic:
+    - percent: 100
+      latestRevision: true

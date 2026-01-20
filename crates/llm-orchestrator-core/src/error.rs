@@ -77,6 +77,10 @@ pub enum OrchestratorError {
     /// Generic error.
     #[error("{0}")]
     Other(String),
+
+    /// Internal error (for internal/channel/sync errors).
+    #[error("Internal error: {0}")]
+    Internal(String),
 }
 
 impl OrchestratorError {
@@ -114,6 +118,11 @@ impl OrchestratorError {
     /// Create a generic error.
     pub fn other<S: Into<String>>(msg: S) -> Self {
         Self::Other(msg.into())
+    }
+
+    /// Create an internal error.
+    pub fn internal<S: Into<String>>(msg: S) -> Self {
+        Self::Internal(msg.into())
     }
 
     /// Check if error is retryable.

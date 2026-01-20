@@ -351,6 +351,72 @@ impl ObservatoryAdapter {
         // Placeholder: Would end span via observatory
         tracing::trace!(span_id = span_id, success = success, "Ended trace span");
     }
+
+    // =========================================================================
+    // Dependency Resolution Telemetry
+    // =========================================================================
+
+    /// Emits a dependency resolution start event.
+    pub async fn emit_dependency_resolution_start(&self, resolution_id: Uuid, task_count: usize) {
+        if !self.enabled || !self.events_enabled {
+            return;
+        }
+
+        let mut attributes = HashMap::new();
+        attributes.insert("task_count".to_string(), serde_json::json!(task_count));
+        attributes.insert("resolution_id".to_string(), serde_json::json!(resolution_id.to_string()));
+
+        let event = TelemetryEvent {
+            id: Uuid::new_v4(),
+            event_type: "dependency_resolution_start".to_string(),
+            workflow_id: resolution_id,
+            step_id: None,
+            timestamp: chrono::Utc::now(),
+            severity: "info".to_string(),
+            message: format!("Dependency resolution started for {} tasks", task_count),
+            attributes,
+            trace_id: None,
+            span_id: None,
+        };
+
+        self.emit_event(event).await;
+    }
+
+    /// Emits a dependency resolution completion event.
+    pub async fn emit_dependency_resolution_complete(
+        &self,
+        resolution_id: Uuid,
+        success: bool,
+        duration: Duration,
+    ) {
+        if !self.enabled || !self.events_enabled {
+            return;
+        }
+
+        let mut attributes = HashMap::new();
+        attributes.insert("success".to_string(), serde_json::json!(success));
+        attributes.insert("duration_ms".to_string(), serde_json::json!(duration.as_millis()));
+        attributes.insert("resolution_id".to_string(), serde_json::json!(resolution_id.to_string()));
+
+        let event = TelemetryEvent {
+            id: Uuid::new_v4(),
+            event_type: "dependency_resolution_complete".to_string(),
+            workflow_id: resolution_id,
+            step_id: None,
+            timestamp: chrono::Utc::now(),
+            severity: if success { "info" } else { "error" }.to_string(),
+            message: format!(
+                "Dependency resolution completed {} in {:?}",
+                if success { "successfully" } else { "with failures" },
+                duration
+            ),
+            attributes,
+            trace_id: None,
+            span_id: None,
+        };
+
+        self.emit_event(event).await;
+    }
 }
 
 #[cfg(test)]
