@@ -4148,8 +4148,22 @@ async fn swarm_replay(
 }
 
 // =============================================================================
-// HTTP Server for Cloud Run Deployment
+// HTTP Server for Cloud Run Deployment (Phase 3 Layer 1)
 // =============================================================================
+
+use llm_orchestrator_core::{
+    Phase3Config, StartupValidator,
+    ExecutionGuard,
+};
+use std::sync::RwLock;
+
+/// Phase 3 runtime state shared across handlers.
+#[derive(Clone)]
+struct Phase3State {
+    config: Phase3Config,
+    execution_guard: ExecutionGuard,
+    ruvector_healthy: Arc<RwLock<bool>>,
+}
 
 /// Health check response
 #[derive(Serialize)]
@@ -4157,6 +4171,8 @@ struct HealthResponse {
     status: String,
     service: String,
     version: String,
+    phase: String,
+    layer: String,
 }
 
 /// Ready check response
@@ -4165,6 +4181,7 @@ struct ReadyResponse {
     ready: bool,
     service: String,
     checks: ReadyChecks,
+    phase3: Phase3ReadyInfo,
 }
 
 /// Individual readiness checks
@@ -4172,6 +4189,19 @@ struct ReadyResponse {
 struct ReadyChecks {
     core: bool,
     agents: bool,
+    ruvector: bool,
+    execution_guard: bool,
+}
+
+/// Phase 3 readiness information
+#[derive(Serialize)]
+struct Phase3ReadyInfo {
+    phase: String,
+    layer: String,
+    max_tokens: u32,
+    max_latency_ms: u64,
+    max_calls_per_run: u32,
+    execution_roles: Vec<String>,
 }
 
 /// Service info response
@@ -4180,37 +4210,97 @@ struct ServiceInfo {
     service: String,
     version: String,
     description: String,
+    phase: String,
+    layer: String,
     agents: Vec<String>,
+    signal_types: Vec<String>,
 }
 
-/// Health endpoint handler
-async fn health_handler() -> Json<HealthResponse> {
+/// Health endpoint handler (Phase 3 aware)
+async fn health_handler(
+    axum::extract::State(state): axum::extract::State<Option<Phase3State>>,
+) -> Json<HealthResponse> {
+    let (phase, layer) = match &state {
+        Some(s) => (s.config.agent_phase.clone(), s.config.agent_layer.to_string()),
+        None => ("phase3".to_string(), "layer1".to_string()),
+    };
+
     Json(HealthResponse {
         status: "healthy".to_string(),
         service: "llm-orchestrator".to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
+        phase,
+        layer,
     })
 }
 
-/// Readiness endpoint handler
-async fn ready_handler() -> (StatusCode, Json<ReadyResponse>) {
+/// Readiness endpoint handler (Phase 3 with Ruvector check)
+async fn ready_handler(
+    axum::extract::State(state): axum::extract::State<Option<Phase3State>>,
+) -> (StatusCode, Json<ReadyResponse>) {
+    let (ruvector_healthy, phase3_info, execution_guard_ok) = match &state {
+        Some(s) => {
+            let ruvector_ok = *s.ruvector_healthy.read().unwrap();
+            let info = Phase3ReadyInfo {
+                phase: s.config.agent_phase.clone(),
+                layer: s.config.agent_layer.to_string(),
+                max_tokens: s.config.max_tokens,
+                max_latency_ms: s.config.max_latency_ms,
+                max_calls_per_run: s.config.max_calls_per_run,
+                execution_roles: s.execution_guard.permitted_roles_summary(),
+            };
+            (ruvector_ok, info, true)
+        }
+        None => {
+            let info = Phase3ReadyInfo {
+                phase: "phase3".to_string(),
+                layer: "layer1".to_string(),
+                max_tokens: 1500,
+                max_latency_ms: 3000,
+                max_calls_per_run: 4,
+                execution_roles: vec![
+                    "coordinate".to_string(),
+                    "route".to_string(),
+                    "optimize".to_string(),
+                    "escalate".to_string(),
+                ],
+            };
+            (false, info, false)
+        }
+    };
+
+    let all_ready = ruvector_healthy && execution_guard_ok;
+    let status = if all_ready { StatusCode::OK } else { StatusCode::SERVICE_UNAVAILABLE };
+
     let response = ReadyResponse {
-        ready: true,
+        ready: all_ready,
         service: "llm-orchestrator".to_string(),
         checks: ReadyChecks {
             core: true,
             agents: true,
+            ruvector: ruvector_healthy,
+            execution_guard: execution_guard_ok,
         },
+        phase3: phase3_info,
     };
-    (StatusCode::OK, Json(response))
+    (status, Json(response))
 }
 
-/// Root endpoint with service info
-async fn root_handler() -> Json<ServiceInfo> {
+/// Root endpoint with service info (Phase 3 enhanced)
+async fn root_handler(
+    axum::extract::State(state): axum::extract::State<Option<Phase3State>>,
+) -> Json<ServiceInfo> {
+    let (phase, layer) = match &state {
+        Some(s) => (s.config.agent_phase.clone(), s.config.agent_layer.to_string()),
+        None => ("phase3".to_string(), "layer1".to_string()),
+    };
+
     Json(ServiceInfo {
         service: "llm-orchestrator".to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
-        description: "LLM Workflow Orchestrator - Central Workflow Execution & Coordination Layer".to_string(),
+        description: "LLM Workflow Orchestrator - Phase 3 Automation & Resilience Layer 1".to_string(),
+        phase,
+        layer,
         agents: vec![
             "WorkflowOrchestratorAgent".to_string(),
             "DependencyResolverAgent".to_string(),
@@ -4220,24 +4310,58 @@ async fn root_handler() -> Json<ServiceInfo> {
             "TaskSchedulerAgent".to_string(),
             "RetryRecoveryAgent".to_string(),
         ],
+        signal_types: vec![
+            "execution_strategy_signal".to_string(),
+            "optimization_signal".to_string(),
+            "incident_signal".to_string(),
+        ],
     })
 }
 
-/// Start HTTP server for Cloud Run deployment
+/// Start HTTP server for Cloud Run deployment (Phase 3 Layer 1)
+///
+/// Implements crashloop behavior on misconfiguration:
+/// - Validates AGENT_PHASE=phase3, AGENT_LAYER=layer1
+/// - Requires RUVECTOR_SERVICE_ENDPOINT and RUVECTOR_API_KEY
+/// - Hard fails on Ruvector unavailability
 async fn serve_http(host: &str, port: u16) -> Result<()> {
-    info!("Starting HTTP server on {}:{}", host, port);
+    info!("Starting Phase 3 Layer 1 HTTP server on {}:{}", host, port);
     println!(
-        "{} Starting server on {}:{}",
+        "{} Starting Phase 3 Layer 1 server on {}:{}",
         "LLM-Orchestrator".cyan().bold(),
         host,
         port
     );
 
-    // Build router with health endpoints
+    // Phase 3 Startup Hardening: Validate configuration
+    // This will cause crashloop on misconfiguration
+    let phase3_state = match validate_phase3_startup().await {
+        Ok(state) => {
+            println!("{}", "✓ Phase 3 startup validation passed".green().bold());
+            Some(state)
+        }
+        Err(e) => {
+            // Log error and exit to trigger Cloud Run crashloop
+            error!("Phase 3 startup validation FAILED: {}", e);
+            println!(
+                "{} Phase 3 startup validation FAILED: {}",
+                "FATAL".red().bold(),
+                e
+            );
+            println!(
+                "{}",
+                "Exiting to trigger crashloop - check configuration".red()
+            );
+            std::process::exit(1);
+        }
+    };
+
+    // Build router with Phase 3 state
     let app = Router::new()
         .route("/", get(root_handler))
         .route("/health", get(health_handler))
-        .route("/ready", get(ready_handler));
+        .route("/ready", get(ready_handler))
+        .with_state(phase3_state);
 
     // Parse address
     let addr: SocketAddr = format!("{}:{}", host, port)
@@ -4245,14 +4369,73 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
         .context("Invalid host:port")?;
 
     println!("{}", "✓ Server ready".green().bold());
+    println!("  Phase: phase3 | Layer: layer1");
+    println!("  Performance Budgets:");
+    println!("    MAX_TOKENS=1500");
+    println!("    MAX_LATENCY_MS=3000");
+    println!("    MAX_CALLS_PER_RUN=4");
+    println!("  Execution Roles: coordinate, route, optimize, escalate");
+    println!("  Signal Types: execution_strategy_signal, optimization_signal, incident_signal");
     println!("  Endpoints:");
-    println!("    GET /        - Service info");
-    println!("    GET /health  - Health check");
-    println!("    GET /ready   - Readiness check");
+    println!("    GET /        - Service info (Phase 3 enhanced)");
+    println!("    GET /health  - Health check (Phase 3 aware)");
+    println!("    GET /ready   - Readiness check (Ruvector validated)");
 
     // Start server
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
 
     Ok(())
+}
+
+/// Validate Phase 3 startup configuration.
+///
+/// Returns error to trigger crashloop on:
+/// - Missing RUVECTOR_SERVICE_ENDPOINT
+/// - Missing RUVECTOR_API_KEY
+/// - Invalid AGENT_PHASE (must be "phase3")
+/// - Ruvector service unavailable
+async fn validate_phase3_startup() -> Result<Phase3State> {
+    info!("Validating Phase 3 Layer 1 startup configuration");
+
+    // Load configuration from environment
+    let config = Phase3Config::from_env().map_err(|e| {
+        anyhow::anyhow!("Phase 3 configuration error: {}", e)
+    })?;
+
+    // Validate configuration
+    config.validate().map_err(|e| {
+        anyhow::anyhow!("Phase 3 validation error: {}", e)
+    })?;
+
+    info!(
+        phase = %config.agent_phase,
+        layer = %config.agent_layer,
+        max_tokens = config.max_tokens,
+        max_latency_ms = config.max_latency_ms,
+        max_calls_per_run = config.max_calls_per_run,
+        "Phase 3 configuration loaded"
+    );
+
+    // Validate Ruvector availability (REQUIRED)
+    let validator = StartupValidator::new(config.clone());
+    validator.validate_startup().await.map_err(|e| {
+        anyhow::anyhow!("Ruvector validation failed: {} - HARD FAIL", e)
+    })?;
+
+    info!("Ruvector service validated successfully");
+
+    // Initialize execution guard
+    let execution_guard = ExecutionGuard::new();
+
+    info!(
+        permitted_roles = ?execution_guard.permitted_roles_summary(),
+        "Execution guard initialized"
+    );
+
+    Ok(Phase3State {
+        config,
+        execution_guard,
+        ruvector_healthy: Arc::new(RwLock::new(true)),
+    })
 }

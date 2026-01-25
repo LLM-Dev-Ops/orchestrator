@@ -130,6 +130,14 @@ pub enum DecisionType {
     Complete,
     /// Fail a workflow or task.
     Fail,
+
+    // Phase 3 Layer 1 Signal Types
+    /// Execution strategy signal - routing and coordination (Phase 3).
+    ExecutionStrategySignal,
+    /// Optimization signal - performance optimization (Phase 3).
+    OptimizationSignal,
+    /// Incident signal - escalation and incidents (Phase 3).
+    IncidentSignal,
 }
 
 impl std::fmt::Display for DecisionType {
@@ -143,6 +151,10 @@ impl std::fmt::Display for DecisionType {
             Self::Cancel => write!(f, "cancel"),
             Self::Complete => write!(f, "complete"),
             Self::Fail => write!(f, "fail"),
+            // Phase 3 Signal Types
+            Self::ExecutionStrategySignal => write!(f, "execution_strategy_signal"),
+            Self::OptimizationSignal => write!(f, "optimization_signal"),
+            Self::IncidentSignal => write!(f, "incident_signal"),
         }
     }
 }

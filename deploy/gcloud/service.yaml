@@ -62,8 +62,22 @@ spec:
                   name: platform-env
                   key: latest
 
-            # RuVector Service (persistence layer)
-            - name: RUVECTOR_SERVICE_URL
+            # Phase 3 - Automation & Resilience (Layer 1)
+            - name: AGENT_PHASE
+              value: "phase3"
+            - name: AGENT_LAYER
+              value: "layer1"
+
+            # Phase 3 Performance Budgets
+            - name: MAX_TOKENS
+              value: "1500"
+            - name: MAX_LATENCY_MS
+              value: "3000"
+            - name: MAX_CALLS_PER_RUN
+              value: "4"
+
+            # RuVector Service (persistence layer - REQUIRED for Phase 3)
+            - name: RUVECTOR_SERVICE_ENDPOINT
               valueFrom:
                 secretKeyRef:
                   name: ruvector-service-url

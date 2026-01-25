@@ -57,6 +57,9 @@ pub mod workflow;
 // Phase 2B: Thin adapter modules for upstream dependency integration
 pub mod adapters;
 
+// Phase 3: Automation & Resilience (Layer 1)
+pub mod phase3;
+
 // Agent implementations according to the Agent Infrastructure Constitution
 pub mod agents;
 
@@ -134,6 +137,15 @@ pub use agentics_contracts::{
     ConsensusStrategy, AggregationStrategy,
     SwarmCoordinationStatus, AggregatedOutput, CoordinationSummary,
     WorkerResult, WorkerStatus,
+};
+
+// Re-export Phase 3 types
+pub use phase3::{
+    Phase3Config, Phase3Layer, StartupValidator,
+    ExecutionGuard, ExecutionRole, GuardViolation,
+    PerformanceBudget, BudgetEnforcer, BudgetViolation,
+    SignalType, ExecutionStrategySignal, OptimizationSignal, IncidentSignal,
+    SignalConfidence, SignalReferences, SignalDecisionEvent,
 };
 
 /// Library version.
