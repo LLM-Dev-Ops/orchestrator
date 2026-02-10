@@ -63,6 +63,9 @@ pub mod phase3;
 // Agent implementations according to the Agent Infrastructure Constitution
 pub mod agents;
 
+// Foundational Execution Unit (FEU) span collection
+pub mod feu_collector;
+
 // Re-export commonly used types
 pub use context::ExecutionContext;
 pub use dag::WorkflowDAG;
@@ -137,6 +140,13 @@ pub use agentics_contracts::{
     ConsensusStrategy, AggregationStrategy,
     SwarmCoordinationStatus, AggregatedOutput, CoordinationSummary,
     WorkerResult, WorkerStatus,
+};
+
+// Re-export FEU types
+pub use feu_collector::{FeuSpanCollector, REPO_NAME};
+pub use agentics_contracts::{
+    FeuExecutionContext, ExecutionSpan, SpanType, SpanStatus,
+    SpanArtifact, RepoExecutionResult,
 };
 
 // Re-export Phase 3 types

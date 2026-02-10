@@ -46,9 +46,12 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use uuid::Uuid;
+
+// FEU span instrumentation
+use llm_orchestrator_core::{FeuSpanCollector, FeuExecutionContext, SpanStatus as FeuSpanStatus};
 
 // HTTP server for Cloud Run
 use axum::{
@@ -57,7 +60,7 @@ use axum::{
     Json,
     http::StatusCode,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
 #[derive(Parser)]
@@ -70,6 +73,14 @@ struct Cli {
     /// Enable verbose logging
     #[arg(short, long, global = true)]
     verbose: bool,
+
+    /// FEU execution ID from the Core (requires --parent-span-id)
+    #[arg(long, global = true)]
+    execution_id: Option<String>,
+
+    /// FEU parent span ID from the Core (requires --execution-id)
+    #[arg(long, global = true)]
+    parent_span_id: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -828,6 +839,39 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    // Build FEU execution context from CLI args
+    let feu_ctx = match (&cli.execution_id, &cli.parent_span_id) {
+        (Some(exec_id), Some(parent_span)) => {
+            let ctx = FeuExecutionContext {
+                execution_id: exec_id.clone(),
+                parent_span_id: parent_span.clone(),
+                trace_id: None,
+                metadata: HashMap::new(),
+            };
+            if let Err(e) = ctx.validate() {
+                eprintln!("{} FEU context validation failed: {}", "Error:".red().bold(), e);
+                std::process::exit(1);
+            }
+            info!(execution_id = %exec_id, parent_span_id = %parent_span, "FEU mode enabled");
+            Some(ctx)
+        }
+        (Some(_), None) => {
+            eprintln!(
+                "{} --execution-id requires --parent-span-id",
+                "Error:".red().bold()
+            );
+            std::process::exit(1);
+        }
+        (None, Some(_)) => {
+            eprintln!(
+                "{} --parent-span-id requires --execution-id",
+                "Error:".red().bold()
+            );
+            std::process::exit(1);
+        }
+        (None, None) => None,
+    };
+
     let result = match cli.command {
         Commands::Validate { file } => validate_workflow(&file),
         Commands::Run {
@@ -840,13 +884,13 @@ async fn main() {
             format,
             quiet,
         } => run_benchmarks(&output, &format, quiet).await,
-        Commands::Schedule(cmd) => handle_schedule_command(cmd).await,
-        Commands::Agent(cmd) => handle_agent_command(cmd).await,
-        Commands::Recovery(cmd) => handle_recovery_command(cmd).await,
-        Commands::Dependency(cmd) => handle_dependency_command(cmd).await,
-        Commands::Parallel(cmd) => handle_parallel_command(cmd).await,
-        Commands::StateMachine(cmd) => handle_state_machine_command(cmd).await,
-        Commands::Swarm(cmd) => handle_swarm_command(cmd).await,
+        Commands::Schedule(cmd) => handle_schedule_command(cmd, feu_ctx.clone()).await,
+        Commands::Agent(cmd) => handle_agent_command(cmd, feu_ctx.clone()).await,
+        Commands::Recovery(cmd) => handle_recovery_command(cmd, feu_ctx.clone()).await,
+        Commands::Dependency(cmd) => handle_dependency_command(cmd, feu_ctx.clone()).await,
+        Commands::Parallel(cmd) => handle_parallel_command(cmd, feu_ctx.clone()).await,
+        Commands::StateMachine(cmd) => handle_state_machine_command(cmd, feu_ctx.clone()).await,
+        Commands::Swarm(cmd) => handle_swarm_command(cmd, feu_ctx.clone()).await,
         Commands::Serve { port, host } => serve_http(&host, port).await,
     };
 
@@ -1075,8 +1119,24 @@ async fn run_benchmarks(output_dir: &str, format: &str, quiet: bool) -> Result<(
     Ok(())
 }
 
+/// Emits the FEU result envelope to stdout (JSON) when FEU mode is active.
+fn emit_feu_result(collector: FeuSpanCollector, success: bool) {
+    let repo_status = if success { FeuSpanStatus::Ok } else { FeuSpanStatus::Failed };
+    let result = collector.finalize(repo_status);
+    if let Err(e) = result.validate() {
+        warn!("FEU result validation warning: {}", e);
+    }
+    // Emit FEU envelope as JSON to stdout
+    eprintln!();
+    eprintln!("{}", "--- FEU Execution Result ---".cyan().bold());
+    match serde_json::to_string_pretty(&result) {
+        Ok(json) => println!("{}", json),
+        Err(e) => warn!("Failed to serialize FEU result: {}", e),
+    }
+}
+
 /// Handles Task Scheduler Agent commands.
-async fn handle_schedule_command(cmd: ScheduleCommands) -> Result<()> {
+async fn handle_schedule_command(cmd: ScheduleCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         ScheduleCommands::Execute {
             task_id,
@@ -1105,6 +1165,7 @@ async fn handle_schedule_command(cmd: ScheduleCommands) -> Result<()> {
                 &ruvector_endpoint,
                 payload.as_deref(),
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -1127,6 +1188,7 @@ async fn handle_schedule_command(cmd: ScheduleCommands) -> Result<()> {
 }
 
 /// Schedules a task for execution via the Task Scheduler Agent.
+#[allow(clippy::too_many_arguments)]
 async fn schedule_execute(
     task_id: &str,
     workflow_id: &str,
@@ -1140,7 +1202,10 @@ async fn schedule_execute(
     ruvector_endpoint: &str,
     payload: Option<&str>,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
+
     info!("Scheduling task: {}", task_id);
     println!("{} {}", "Scheduling task:".cyan().bold(), task_id.yellow());
 
@@ -1232,11 +1297,19 @@ async fn schedule_execute(
     };
 
     // Create and run the Task Scheduler Agent
-    let agent = TaskSchedulerAgent::new(ruvector_endpoint);
+    let mut agent = TaskSchedulerAgent::new(ruvector_endpoint);
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
     let result = agent
         .schedule(request)
         .await
         .map_err(|e| anyhow::anyhow!("Scheduling failed: {}", e))?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        emit_feu_result(collector, true);
+    }
 
     // Output result
     if output_format == "json" {
@@ -1411,7 +1484,7 @@ async fn schedule_cancel(
 // =============================================================================
 
 /// Handles Workflow Orchestrator Agent commands.
-async fn handle_agent_command(cmd: AgentCommands) -> Result<()> {
+async fn handle_agent_command(cmd: AgentCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         AgentCommands::Execute {
             file,
@@ -1432,6 +1505,7 @@ async fn handle_agent_command(cmd: AgentCommands) -> Result<()> {
                 &ruvector_endpoint,
                 observatory_endpoint.as_deref(),
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -1465,6 +1539,7 @@ async fn handle_agent_command(cmd: AgentCommands) -> Result<()> {
 }
 
 /// Executes a workflow via the Workflow Orchestrator Agent.
+#[allow(clippy::too_many_arguments)]
 async fn agent_execute(
     file_path: &str,
     input: Option<&str>,
@@ -1474,7 +1549,10 @@ async fn agent_execute(
     ruvector_endpoint: &str,
     observatory_endpoint: Option<&str>,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
+
     info!("Executing workflow via agent: {}", file_path);
     println!(
         "{} {}",
@@ -1522,6 +1600,11 @@ async fn agent_execute(
         agent = agent.with_observatory(observatory);
     }
 
+    // Configure FEU collector if in FEU mode
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
+
     println!("  {} {}", "Agent ID:".cyan(), agent.agent_id());
     println!("  {} {}", "Agent Version:".cyan(), agent.version());
     println!();
@@ -1535,6 +1618,11 @@ async fn agent_execute(
         .execute(request)
         .await
         .with_context(|| "Workflow execution failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        emit_feu_result(collector, response.success);
+    }
 
     // Output result
     if output_format == "json" {
@@ -1790,7 +1878,7 @@ async fn agent_replay(
 // =============================================================================
 
 /// Handles Dependency Resolver Agent commands.
-async fn handle_dependency_command(cmd: DependencyCommands) -> Result<()> {
+async fn handle_dependency_command(cmd: DependencyCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         DependencyCommands::Resolve {
             tasks,
@@ -1811,6 +1899,7 @@ async fn handle_dependency_command(cmd: DependencyCommands) -> Result<()> {
                 &ruvector_endpoint,
                 observatory_endpoint.as_deref(),
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -1832,6 +1921,7 @@ async fn handle_dependency_command(cmd: DependencyCommands) -> Result<()> {
 }
 
 /// Resolves dependencies and produces an execution plan.
+#[allow(clippy::too_many_arguments)]
 async fn dependency_resolve(
     tasks_input: &str,
     workflow_id: &str,
@@ -1841,7 +1931,9 @@ async fn dependency_resolve(
     ruvector_endpoint: &str,
     observatory_endpoint: Option<&str>,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
     info!("Resolving dependencies for workflow: {}", workflow_id);
     println!(
         "{} {}",
@@ -1887,6 +1979,11 @@ async fn dependency_resolve(
         agent = agent.with_observatory(observatory);
     }
 
+    // Configure FEU collector if in FEU mode
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
+
     println!("  {} {}", "Agent ID:".cyan(), agent.agent_id());
     println!("  {} {}", "Agent Version:".cyan(), agent.version());
     println!("  {} {}", "Tasks:".cyan(), tasks.len());
@@ -1911,6 +2008,11 @@ async fn dependency_resolve(
         .resolve(request)
         .await
         .with_context(|| "Dependency resolution failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        emit_feu_result(collector, response.success);
+    }
 
     // Output result
     if output_format == "json" {
@@ -2244,7 +2346,7 @@ async fn dependency_validate(tasks_input: &str, output_format: &str) -> Result<(
 // =============================================================================
 
 /// Handles Retry & Recovery Agent commands.
-async fn handle_recovery_command(cmd: RecoveryCommands) -> Result<()> {
+async fn handle_recovery_command(cmd: RecoveryCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         RecoveryCommands::Evaluate {
             task_id,
@@ -2277,6 +2379,7 @@ async fn handle_recovery_command(cmd: RecoveryCommands) -> Result<()> {
                 deadline.as_deref(),
                 &ruvector_endpoint,
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -2311,7 +2414,10 @@ async fn recovery_evaluate(
     deadline: Option<&str>,
     ruvector_endpoint: &str,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
+
     use llm_orchestrator_core::adapters::retry_recovery::{
         BackoffStrategy, ErrorCategory, FailureDetails, RetryConfig,
     };
@@ -2409,13 +2515,21 @@ async fn recovery_evaluate(
     };
 
     // Create agent with ruvector endpoint
-    let agent = RetryRecoveryAgent::new(ruvector_endpoint);
+    let mut agent = RetryRecoveryAgent::new(ruvector_endpoint);
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
 
     // Evaluate recovery
     let decision = agent
         .evaluate(request)
         .await
         .with_context(|| "Recovery evaluation failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        emit_feu_result(collector, true);
+    }
 
     // Output result
     if output_format == "json" {
@@ -2592,7 +2706,7 @@ async fn recovery_replay(
 // =============================================================================
 
 /// Handles Parallelization Agent commands.
-async fn handle_parallel_command(cmd: ParallelCommands) -> Result<()> {
+async fn handle_parallel_command(cmd: ParallelCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         ParallelCommands::Analyze {
             tasks,
@@ -2615,6 +2729,7 @@ async fn handle_parallel_command(cmd: ParallelCommands) -> Result<()> {
                 &ruvector_endpoint,
                 observatory_endpoint.as_deref(),
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -2643,7 +2758,9 @@ async fn parallel_analyze(
     ruvector_endpoint: &str,
     observatory_endpoint: Option<&str>,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
     use agentics_contracts::dependency::TaskDependencyNode;
     use llm_orchestrator_core::{
         ParallelizationRequest, ParallelizationConfig, ResourceConstraints,
@@ -2714,6 +2831,11 @@ async fn parallel_analyze(
         agent = agent.with_observatory(observatory);
     }
 
+    // Configure FEU collector if in FEU mode
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
+
     println!("  {} {}", "Agent ID:".cyan(), agent.agent_id());
     println!("  {} {}", "Agent Version:".cyan(), agent.version());
     println!("  {} {}", "Tasks:".cyan(), tasks.len());
@@ -2735,6 +2857,16 @@ async fn parallel_analyze(
         .analyze(request)
         .await
         .with_context(|| "Parallelization analysis failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        let is_success = matches!(
+            response.status,
+            llm_orchestrator_core::ParallelizationStatus::Success
+                | llm_orchestrator_core::ParallelizationStatus::SuccessWithWarnings
+        );
+        emit_feu_result(collector, is_success);
+    }
 
     // Output result
     if output_format == "json" {
@@ -2942,7 +3074,7 @@ async fn parallel_replay(
 // =============================================================================
 
 /// Handles State Machine Agent commands.
-async fn handle_state_machine_command(cmd: StateMachineCommands) -> Result<()> {
+async fn handle_state_machine_command(cmd: StateMachineCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         StateMachineCommands::Transition {
             execution_id,
@@ -2965,6 +3097,7 @@ async fn handle_state_machine_command(cmd: StateMachineCommands) -> Result<()> {
                 force,
                 &ruvector_endpoint,
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -3047,7 +3180,10 @@ async fn state_machine_transition(
     force: bool,
     ruvector_endpoint: &str,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
+
     info!("Transitioning state: {} -> {}", current_state, target_state);
     println!(
         "{} {} {} {}",
@@ -3070,6 +3206,11 @@ async fn state_machine_transition(
     let ruvector_client = RuVectorServiceClient::new(ruvector_endpoint);
     agent = agent.with_ruvector_client(ruvector_client);
 
+    // Configure FEU collector if in FEU mode
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
+
     println!("  {} {}", "Agent ID:".cyan(), agent.agent_id());
     println!("  {} {}", "Agent Version:".cyan(), agent.version());
     println!();
@@ -3091,6 +3232,11 @@ async fn state_machine_transition(
         .transition(request)
         .await
         .with_context(|| "State transition failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        emit_feu_result(collector, response.success);
+    }
 
     // Output result
     if output_format == "json" {
@@ -3609,7 +3755,7 @@ async fn state_machine_replay(
 // =============================================================================
 
 /// Handles Swarm Coordinator Agent commands.
-async fn handle_swarm_command(cmd: SwarmCommands) -> Result<()> {
+async fn handle_swarm_command(cmd: SwarmCommands, feu_ctx: Option<FeuExecutionContext>) -> Result<()> {
     match cmd {
         SwarmCommands::Coordinate {
             config,
@@ -3638,6 +3784,7 @@ async fn handle_swarm_command(cmd: SwarmCommands) -> Result<()> {
                 &ruvector_endpoint,
                 observatory_endpoint.as_deref(),
                 &output_format,
+                feu_ctx,
             )
             .await
         }
@@ -3669,7 +3816,9 @@ async fn swarm_coordinate(
     ruvector_endpoint: &str,
     observatory_endpoint: Option<&str>,
     output_format: &str,
+    feu_ctx: Option<FeuExecutionContext>,
 ) -> Result<()> {
+    let feu_collector = feu_ctx.map(FeuSpanCollector::new);
     use agentics_contracts::{
         AggregationMode, AggregationStrategy, ConsensusStrategy, ObjectiveType, SuccessCriterion,
         SwarmCoordinationRequest, SwarmCoordinatorConfig, SwarmObjective, ValidationRule, WorkerSpec,
@@ -3790,6 +3939,11 @@ async fn swarm_coordinate(
         agent = agent.with_observatory(observatory);
     }
 
+    // Configure FEU collector if in FEU mode
+    if let Some(ref collector) = feu_collector {
+        agent = agent.with_feu_collector(collector.clone());
+    }
+
     println!("  {} {}", "Agent ID:".cyan(), agent.agent_id());
     println!("  {} {}", "Agent Version:".cyan(), agent.version());
     println!("  {} {}", "Workers:".cyan(), workers.len());
@@ -3814,6 +3968,15 @@ async fn swarm_coordinate(
         .coordinate(request)
         .await
         .with_context(|| "Swarm coordination failed")?;
+
+    // Emit FEU result if in FEU mode
+    if let Some(collector) = feu_collector {
+        let is_success = matches!(
+            response.status,
+            SwarmCoordinationStatus::Success | SwarmCoordinationStatus::ConsensusReached
+        );
+        emit_feu_result(collector, is_success);
+    }
 
     // Output result
     if output_format == "json" {
@@ -4318,6 +4481,106 @@ async fn root_handler(
     })
 }
 
+/// FEU execute request body.
+#[derive(Deserialize)]
+struct FeuExecuteRequest {
+    /// The FEU execution context from the Core.
+    context: FeuExecutionContext,
+    /// The agent to invoke.
+    agent: String,
+    /// Agent-specific payload.
+    #[serde(default)]
+    payload: serde_json::Value,
+}
+
+/// FEU execute endpoint handler.
+///
+/// Accepts POST /execute with `FeuExecuteRequest` body.
+/// Rejects with 400 if `parent_span_id` is empty/missing.
+/// Creates FeuSpanCollector, dispatches to agent, finalizes, and returns `RepoExecutionResult`.
+async fn feu_execute_handler(
+    Json(req): Json<FeuExecuteRequest>,
+) -> std::result::Result<Json<agentics_contracts::feu::RepoExecutionResult>, (StatusCode, String)> {
+    // Validate FEU context
+    if let Err(e) = req.context.validate() {
+        return Err((
+            StatusCode::BAD_REQUEST,
+            format!("Invalid FEU context: {}", e),
+        ));
+    }
+
+    let collector = FeuSpanCollector::new(req.context);
+    let agent_name = req.agent.to_lowercase();
+
+    // Dispatch to the requested agent
+    // For now, only WorkflowOrchestratorAgent is supported via HTTP
+    // Other agents require complex typed payloads that would need separate endpoints
+    let (success, error_msg) = match agent_name.as_str() {
+        "workflow" | "workfloworchestratoragent" => {
+            // Parse payload as workflow execute request
+            let workflow_str = match req.payload.get("workflow") {
+                Some(w) => match serde_json::to_string(w) {
+                    Ok(s) => s,
+                    Err(e) => return Err((
+                        StatusCode::BAD_REQUEST,
+                        format!("Invalid workflow in payload: {}", e),
+                    )),
+                },
+                None => return Err((
+                    StatusCode::BAD_REQUEST,
+                    "Missing 'workflow' in payload".to_string(),
+                )),
+            };
+
+            let workflow: llm_orchestrator_core::Workflow = match serde_json::from_str(&workflow_str) {
+                Ok(w) => w,
+                Err(e) => return Err((
+                    StatusCode::BAD_REQUEST,
+                    format!("Invalid workflow definition: {}", e),
+                )),
+            };
+
+            let inputs: HashMap<String, serde_json::Value> = req.payload
+                .get("inputs")
+                .and_then(|v| serde_json::from_value(v.clone()).ok())
+                .unwrap_or_default();
+
+            let config = AgentConfig::default();
+            let agent = WorkflowOrchestratorAgent::new(config)
+                .with_feu_collector(collector.clone());
+
+            let request = AgentExecuteRequest { workflow, inputs };
+
+            match agent.execute(request).await {
+                Ok(response) => (response.success, None),
+                Err(e) => (false, Some(format!("{}", e))),
+            }
+        }
+        other => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "Unsupported agent '{}'. Supported: workflow",
+                    other
+                ),
+            ));
+        }
+    };
+
+    if let Some(err) = &error_msg {
+        warn!("FEU agent execution failed: {}", err);
+    }
+
+    let repo_status = if success { FeuSpanStatus::Ok } else { FeuSpanStatus::Failed };
+    let result = collector.finalize(repo_status);
+
+    if let Err(e) = result.validate() {
+        warn!("FEU result validation warning: {}", e);
+    }
+
+    Ok(Json(result))
+}
+
 /// Start HTTP server for Cloud Run deployment (Phase 3 Layer 1)
 ///
 /// Implements crashloop behavior on misconfiguration:
@@ -4361,6 +4624,7 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
         .route("/", get(root_handler))
         .route("/health", get(health_handler))
         .route("/ready", get(ready_handler))
+        .route("/execute", axum::routing::post(feu_execute_handler))
         .with_state(phase3_state);
 
     // Parse address
@@ -4377,9 +4641,10 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
     println!("  Execution Roles: coordinate, route, optimize, escalate");
     println!("  Signal Types: execution_strategy_signal, optimization_signal, incident_signal");
     println!("  Endpoints:");
-    println!("    GET /        - Service info (Phase 3 enhanced)");
-    println!("    GET /health  - Health check (Phase 3 aware)");
-    println!("    GET /ready   - Readiness check (Ruvector validated)");
+    println!("    GET  /        - Service info (Phase 3 enhanced)");
+    println!("    GET  /health  - Health check (Phase 3 aware)");
+    println!("    GET  /ready   - Readiness check (Ruvector validated)");
+    println!("    POST /execute - FEU execution endpoint (Core invocation)");
 
     // Start server
     let listener = tokio::net::TcpListener::bind(addr).await?;

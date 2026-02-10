@@ -41,6 +41,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
 use uuid::Uuid;
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
 
 // ============================================================================
 // CONTRACT SCHEMAS (agentics-contracts compatible)
@@ -776,6 +778,8 @@ pub struct RetryRecoveryAgent {
     telemetry_enabled: bool,
     /// Historical data for decision making.
     historical_success_rates: HashMap<String, f64>,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 impl Default for RetryRecoveryAgent {
@@ -786,6 +790,7 @@ impl Default for RetryRecoveryAgent {
             default_timeout: Duration::from_secs(60),
             telemetry_enabled: true,
             historical_success_rates: HashMap::new(),
+            feu_collector: None,
         }
     }
 }
@@ -799,6 +804,7 @@ impl RetryRecoveryAgent {
             default_timeout: Duration::from_secs(60),
             telemetry_enabled: true,
             historical_success_rates: HashMap::new(),
+            feu_collector: None,
         }
     }
 
@@ -814,6 +820,7 @@ impl RetryRecoveryAgent {
             default_timeout,
             telemetry_enabled,
             historical_success_rates: HashMap::new(),
+            feu_collector: None,
         }
     }
 
@@ -830,6 +837,12 @@ impl RetryRecoveryAgent {
     /// Returns the configured ruvector endpoint.
     pub fn ruvector_endpoint(&self) -> &str {
         &self.ruvector_endpoint
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
+        self
     }
 
     // ========================================================================
@@ -853,6 +866,10 @@ impl RetryRecoveryAgent {
             error_code = %request.error.error_code,
             "Processing recovery request"
         );
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("RetryRecoveryAgent"));
 
         // Validate request
         self.validate_request(&request)?;
@@ -883,6 +900,11 @@ impl RetryRecoveryAgent {
             confidence = confidence,
             "Recovery decision made"
         );
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            collector.end_agent_span(&span_id, SpanStatus::Ok, Vec::new(), Vec::new());
+        }
 
         Ok(decision)
     }

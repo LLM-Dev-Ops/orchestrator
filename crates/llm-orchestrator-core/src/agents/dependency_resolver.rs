@@ -56,6 +56,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use std::time::Instant;
 use uuid::Uuid;
 
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
+
 /// Agent version.
 pub const AGENT_VERSION: &str = "1.0.0";
 
@@ -436,6 +439,8 @@ pub struct DependencyResolverAgent {
     observatory: ObservatoryAdapter,
     /// Agent ID.
     agent_id: String,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 impl DependencyResolverAgent {
@@ -452,6 +457,7 @@ impl DependencyResolverAgent {
             ruvector_client: RuVectorServiceClient::disabled(),
             observatory: ObservatoryAdapter::disabled(),
             agent_id,
+            feu_collector: None,
         }
     }
 
@@ -464,6 +470,12 @@ impl DependencyResolverAgent {
     /// Creates an agent with observatory integration.
     pub fn with_observatory(mut self, observatory: ObservatoryAdapter) -> Self {
         self.observatory = observatory;
+        self
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
         self
     }
 
@@ -488,6 +500,10 @@ impl DependencyResolverAgent {
         let resolution_id = Uuid::new_v4();
         let start_time = Instant::now();
         let started_at = Utc::now();
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("DependencyResolverAgent"));
 
         // Emit resolution start telemetry
         self.observatory
@@ -595,6 +611,14 @@ impl DependencyResolverAgent {
                 resolution_time,
             )
             .await;
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            let feu_status = if response.success { SpanStatus::Ok } else { SpanStatus::Failed };
+            collector.end_agent_span(&span_id, feu_status, Vec::new(), vec![
+                serde_json::to_value(&decision_event).unwrap_or_default()
+            ]);
+        }
 
         Ok(response)
     }

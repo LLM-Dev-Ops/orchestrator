@@ -65,6 +65,9 @@ use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
+
 /// Parallelization Agent.
 ///
 /// This agent analyzes workflow tasks to identify opportunities for
@@ -93,6 +96,8 @@ pub struct ParallelizationAgent {
     observatory: ObservatoryAdapter,
     /// Agent ID.
     agent_id: String,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 /// Configuration for the Parallelization Agent.
@@ -133,6 +138,7 @@ impl ParallelizationAgent {
             ruvector_client: RuVectorServiceClient::disabled(),
             observatory: ObservatoryAdapter::disabled(),
             agent_id,
+            feu_collector: None,
         }
     }
 
@@ -145,6 +151,12 @@ impl ParallelizationAgent {
     /// Creates an agent with observatory integration.
     pub fn with_observatory(mut self, observatory: ObservatoryAdapter) -> Self {
         self.observatory = observatory;
+        self
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
         self
     }
 
@@ -167,6 +179,10 @@ impl ParallelizationAgent {
     /// This is the primary CLI endpoint for parallelization analysis.
     pub async fn analyze(&self, request: ParallelizationRequest) -> Result<ParallelizationResult> {
         let start_time = std::time::Instant::now();
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("ParallelizationAgent"));
 
         tracing::info!(
             workflow_id = %request.workflow_id,
@@ -297,6 +313,18 @@ impl ParallelizationAgent {
             confidence = confidence,
             "Parallelization analysis complete"
         );
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            let feu_status = if result.status == ParallelizationStatus::Success || result.status == ParallelizationStatus::SuccessWithWarnings || result.status == ParallelizationStatus::NoOpportunities {
+                SpanStatus::Ok
+            } else {
+                SpanStatus::Failed
+            };
+            collector.end_agent_span(&span_id, feu_status, Vec::new(), vec![
+                serde_json::to_value(&decision_event).unwrap_or_default()
+            ]);
+        }
 
         Ok(result)
     }

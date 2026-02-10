@@ -65,6 +65,9 @@ use tokio::sync::Mutex;
 use tokio::time::{timeout, Duration};
 use uuid::Uuid;
 
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
+
 /// Swarm Coordinator Agent.
 ///
 /// This agent coordinates fan-out / fan-in execution across multiple agents
@@ -93,6 +96,8 @@ pub struct SwarmCoordinatorAgent {
     observatory: ObservatoryAdapter,
     /// Agent ID.
     agent_id: String,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 /// Configuration for the Swarm Coordinator Agent.
@@ -133,6 +138,7 @@ impl SwarmCoordinatorAgent {
             ruvector_client: RuVectorServiceClient::disabled(),
             observatory: ObservatoryAdapter::disabled(),
             agent_id,
+            feu_collector: None,
         }
     }
 
@@ -145,6 +151,12 @@ impl SwarmCoordinatorAgent {
     /// Creates an agent with observatory integration.
     pub fn with_observatory(mut self, observatory: ObservatoryAdapter) -> Self {
         self.observatory = observatory;
+        self
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
         self
     }
 
@@ -176,6 +188,10 @@ impl SwarmCoordinatorAgent {
     ) -> Result<SwarmCoordinationResult> {
         let start_time = std::time::Instant::now();
         let coordination_start = Utc::now();
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("SwarmCoordinatorAgent"));
 
         tracing::info!(
             workflow_id = %request.workflow_id,
@@ -282,6 +298,17 @@ impl SwarmCoordinatorAgent {
             confidence = confidence,
             "Swarm coordination complete"
         );
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            let feu_status = match &result.status {
+                SwarmCoordinationStatus::Success | SwarmCoordinationStatus::ConsensusReached => SpanStatus::Ok,
+                _ => SpanStatus::Failed,
+            };
+            collector.end_agent_span(&span_id, feu_status, Vec::new(), vec![
+                serde_json::to_value(&decision_event).unwrap_or_default()
+            ]);
+        }
 
         Ok(result)
     }

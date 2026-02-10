@@ -24,6 +24,7 @@
 pub mod agent;
 pub mod decision;
 pub mod dependency;
+pub mod feu;
 pub mod parallelization;
 pub mod state_machine;
 pub mod swarm_coordinator;
@@ -86,6 +87,10 @@ pub use swarm_coordinator::{
     SWARM_COORDINATOR_AGENT_ID, SWARM_COORDINATOR_AGENT_VERSION,
 };
 pub use error::{ContractError, ContractResult};
+pub use feu::{
+    FeuExecutionContext, ExecutionSpan, SpanType, SpanStatus,
+    SpanArtifact, RepoExecutionResult,
+};
 
 /// Library version.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

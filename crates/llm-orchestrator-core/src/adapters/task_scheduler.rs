@@ -40,6 +40,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
 use uuid::Uuid;
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
 
 // ============================================================================
 // CONTRACT SCHEMAS (agentics-contracts compatible)
@@ -493,6 +495,8 @@ pub struct TaskSchedulerAgent {
     max_queue_depth: u64,
     /// Enable telemetry emission.
     telemetry_enabled: bool,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 impl Default for TaskSchedulerAgent {
@@ -503,6 +507,7 @@ impl Default for TaskSchedulerAgent {
             default_timeout: Duration::from_secs(300),
             max_queue_depth: 10000,
             telemetry_enabled: true,
+            feu_collector: None,
         }
     }
 }
@@ -516,6 +521,7 @@ impl TaskSchedulerAgent {
             default_timeout: Duration::from_secs(300),
             max_queue_depth: 10000,
             telemetry_enabled: true,
+            feu_collector: None,
         }
     }
 
@@ -532,6 +538,7 @@ impl TaskSchedulerAgent {
             default_timeout,
             max_queue_depth,
             telemetry_enabled,
+            feu_collector: None,
         }
     }
 
@@ -548,6 +555,12 @@ impl TaskSchedulerAgent {
     /// Returns the configured ruvector endpoint.
     pub fn ruvector_endpoint(&self) -> &str {
         &self.ruvector_endpoint
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
+        self
     }
 
     // ========================================================================
@@ -569,6 +582,10 @@ impl TaskSchedulerAgent {
             schedule_type = ?request.schedule_type,
             "Processing schedule request"
         );
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("TaskSchedulerAgent"));
 
         // Validate request
         self.validate_request(&request)?;
@@ -594,6 +611,11 @@ impl TaskSchedulerAgent {
             confidence = confidence,
             "Task scheduled successfully"
         );
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            collector.end_agent_span(&span_id, SpanStatus::Ok, Vec::new(), Vec::new());
+        }
 
         Ok(result)
     }

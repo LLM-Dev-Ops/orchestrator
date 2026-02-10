@@ -53,6 +53,9 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
+
 /// Agent version.
 pub const AGENT_VERSION: &str = "0.1.0";
 
@@ -72,6 +75,8 @@ pub struct WorkflowOrchestratorAgent {
     observatory: ObservatoryAdapter,
     /// Agent ID.
     agent_id: String,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 impl WorkflowOrchestratorAgent {
@@ -84,6 +89,7 @@ impl WorkflowOrchestratorAgent {
             ruvector_client: RuVectorServiceClient::disabled(),
             observatory: ObservatoryAdapter::disabled(),
             agent_id,
+            feu_collector: None,
         }
     }
 
@@ -96,6 +102,12 @@ impl WorkflowOrchestratorAgent {
     /// Creates an agent with observatory integration.
     pub fn with_observatory(mut self, observatory: ObservatoryAdapter) -> Self {
         self.observatory = observatory;
+        self
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
         self
     }
 
@@ -116,6 +128,10 @@ impl WorkflowOrchestratorAgent {
         let execution_id = Uuid::new_v4();
         let start_time = std::time::Instant::now();
         let started_at = Utc::now();
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("WorkflowOrchestratorAgent"));
 
         // Emit workflow start telemetry
         self.observatory
@@ -211,8 +227,11 @@ impl WorkflowOrchestratorAgent {
             constraints_applied: serde_json::to_value(&constraints).unwrap_or_default(),
             workflow_execution_id: execution_id,
             step_execution_id: None,
-            trace_id: Some(Uuid::new_v4().to_string()),
-            span_id: Some(Uuid::new_v4().to_string()),
+            trace_id: self.feu_collector.as_ref()
+                .and_then(|c| c.context().trace_id.clone())
+                .or_else(|| Some(Uuid::new_v4().to_string())),
+            span_id: feu_span_id.clone()
+                .or_else(|| Some(Uuid::new_v4().to_string())),
             timestamp: completed_at,
             metadata: HashMap::new(),
         };
@@ -247,6 +266,14 @@ impl WorkflowOrchestratorAgent {
         self.observatory
             .emit_workflow_complete(execution_id, success, duration)
             .await;
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            let feu_status = if success { SpanStatus::Ok } else { SpanStatus::Failed };
+            collector.end_agent_span(&span_id, feu_status, Vec::new(), vec![
+                serde_json::to_value(&decision_event).unwrap_or_default()
+            ]);
+        }
 
         Ok(ExecuteResponse {
             execution_id,

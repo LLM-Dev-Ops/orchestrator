@@ -54,6 +54,9 @@ use std::collections::HashMap;
 use std::time::Instant;
 use uuid::Uuid;
 
+use crate::feu_collector::FeuSpanCollector;
+use agentics_contracts::feu::SpanStatus;
+
 /// Agent version.
 pub const AGENT_VERSION: &str = "1.0.0";
 
@@ -147,6 +150,8 @@ pub struct StateMachineAgent {
     state_history: HashMap<Uuid, Vec<StateHistoryEntry>>,
     /// Current states (in-memory for this implementation).
     current_states: HashMap<Uuid, (EntityType, String, DateTime<Utc>)>,
+    /// FEU span collector (optional, for Agentics execution mode).
+    feu_collector: Option<FeuSpanCollector>,
 }
 
 impl StateMachineAgent {
@@ -167,6 +172,7 @@ impl StateMachineAgent {
             task_state_machine: StateMachineDefinition::task_default(),
             state_history: HashMap::new(),
             current_states: HashMap::new(),
+            feu_collector: None,
         }
     }
 
@@ -191,6 +197,12 @@ impl StateMachineAgent {
     /// Sets a custom task state machine.
     pub fn with_task_state_machine(mut self, sm: StateMachineDefinition) -> Self {
         self.task_state_machine = sm;
+        self
+    }
+
+    /// Sets the FEU span collector for Agentics execution mode.
+    pub fn with_feu_collector(mut self, collector: FeuSpanCollector) -> Self {
+        self.feu_collector = Some(collector);
         self
     }
 
@@ -225,6 +237,10 @@ impl StateMachineAgent {
     ) -> Result<StateTransitionResponse> {
         let start_time = Instant::now();
         let decision_event_id = Uuid::new_v4();
+
+        // Start FEU agent span if in Agentics execution mode
+        let feu_span_id = self.feu_collector.as_ref()
+            .map(|c| c.start_agent_span("StateMachineAgent"));
 
         // Get the appropriate state machine and extract needed values
         let (sm_name, sm_version, validation, success, status, new_state) = {
@@ -348,6 +364,14 @@ impl StateMachineAgent {
                 duration,
             )
             .await;
+
+        // End FEU agent span if in Agentics execution mode
+        if let (Some(collector), Some(span_id)) = (&self.feu_collector, &feu_span_id) {
+            let feu_status = if success { SpanStatus::Ok } else { SpanStatus::Failed };
+            collector.end_agent_span(&span_id, feu_status, Vec::new(), vec![
+                serde_json::to_value(&decision_event).unwrap_or_default()
+            ]);
+        }
 
         Ok(response)
     }
