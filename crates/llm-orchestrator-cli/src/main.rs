@@ -4481,6 +4481,47 @@ async fn root_handler(
     })
 }
 
+/// Automation-core event ingestion request body.
+#[derive(Deserialize)]
+struct EventIngestionRequest {
+    source: String,
+    event_type: String,
+    execution_id: String,
+    timestamp: String,
+    #[serde(default)]
+    payload: serde_json::Value,
+}
+
+/// Automation-core event ingestion response.
+#[derive(Serialize)]
+struct EventIngestionResponse {
+    status: String,
+    execution_id: String,
+}
+
+/// POST /api/v1/events handler.
+///
+/// Accepts events from automation-core and returns 202 Accepted.
+async fn events_handler(
+    Json(event): Json<EventIngestionRequest>,
+) -> (StatusCode, Json<EventIngestionResponse>) {
+    info!(
+        source = %event.source,
+        event_type = %event.event_type,
+        execution_id = %event.execution_id,
+        timestamp = %event.timestamp,
+        "Received event from automation-core"
+    );
+
+    (
+        StatusCode::ACCEPTED,
+        Json(EventIngestionResponse {
+            status: "accepted".to_string(),
+            execution_id: event.execution_id,
+        }),
+    )
+}
+
 /// FEU execute request body.
 #[derive(Deserialize)]
 struct FeuExecuteRequest {
@@ -4625,6 +4666,7 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
         .route("/health", get(health_handler))
         .route("/ready", get(ready_handler))
         .route("/execute", axum::routing::post(feu_execute_handler))
+        .route("/api/v1/events", axum::routing::post(events_handler))
         .with_state(phase3_state);
 
     // Parse address
@@ -4644,7 +4686,8 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
     println!("    GET  /        - Service info (Phase 3 enhanced)");
     println!("    GET  /health  - Health check (Phase 3 aware)");
     println!("    GET  /ready   - Readiness check (Ruvector validated)");
-    println!("    POST /execute - FEU execution endpoint (Core invocation)");
+    println!("    POST /execute        - FEU execution endpoint (Core invocation)");
+    println!("    POST /api/v1/events  - Event ingestion (automation-core)");
 
     // Start server
     let listener = tokio::net::TcpListener::bind(addr).await?;
