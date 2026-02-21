@@ -1,0 +1,43 @@
+# Rust build artifacts
+target/
+crates/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Helm
+helm/
+
+# Documentation
+docs/
+*.md
+
+# CI/CD
+deploy/
+.github/
+
+# Tests
+tests/
+
+# Rust config
+Cargo.toml
+Cargo.lock
+
+# NPM binary wrappers (not needed for Cloud Function)
+npm/
+
+# Examples
+examples/
+
+# Node dev files
+node_modules/
+package-lock.json

@@ -1,5 +1,20 @@
 {
+  "name": "orchestrator-agents",
+  "version": "0.1.5",
+  "description": "Orchestrator Agents Cloud Function — 7 orchestration agents for workflow execution, scheduling, dependency resolution, retry/recovery, parallelization, state management, and swarm coordination.",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx @google-cloud/functions-framework --target=handler --port=8080",
+    "test": "node functions/test.js",
+    "lint": "echo 'no lint configured'"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
+    "@google-cloud/functions-framework": "^3.4.0",
     "claude-flow": "^3.0.0-alpha.179"
-  }
+  },
+  "private": true,
+  "license": "Apache-2.0"
 }
