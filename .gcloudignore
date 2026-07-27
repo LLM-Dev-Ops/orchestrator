@@ -1,43 +1,25 @@
-# Rust build artifacts
-target/
-crates/
-
-# IDE
-.vscode/
-.idea/
-
-# Git
+# Upload exclusions for `gcloud builds submit` / `gcloud run deploy --source`.
+#
+# NOTE 1: this file previously targeted a Cloud Functions deploy and excluded
+#         Dockerfile, Cargo.toml, Cargo.lock and crates/ — i.e. the entire
+#         container build input. Do not re-add those.
+# NOTE 2: leading "/" anchors each pattern to the repo root. Do NOT drop it:
+#         an unanchored "benchmarks/" also matches
+#         crates/llm-orchestrator-benchmarks/src/benchmarks/ and breaks the
+#         build with a misleading "error[E0583]: file not found for module".
 .git/
-.gitignore
-
-# Docker
-Dockerfile
-.dockerignore
-
-# Helm
-helm/
-
-# Documentation
-docs/
-*.md
-
-# CI/CD
-deploy/
 .github/
-
-# Tests
-tests/
-
-# Rust config
-Cargo.toml
-Cargo.lock
-
-# NPM binary wrappers (not needed for Cloud Function)
-npm/
-
-# Examples
-examples/
-
-# Node dev files
-node_modules/
-package-lock.json
+/target/
+**/target/
+**/node_modules/
+/docs/
+/benchmarks/
+/examples/
+/plans/
+/helm/
+/deploy/
+/npm/
+/tests/
+*.log
+.env
+.env.*

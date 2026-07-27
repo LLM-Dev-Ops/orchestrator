@@ -175,19 +175,49 @@ gcloud services enable \
 
 ### Deployment Commands
 
-**Option 1: Direct Deploy Script**
+> **Do not use `gcloud run deploy --source`.** See ADR-0003. With no `Dockerfile`
+> in the uploaded context it silently falls back to Node.js buildpack
+> auto-detection instead of building the Rust container, and swallows the build
+> ID so the failure is invisible from the CLI. Build and deploy as two explicit
+> steps.
+
+**Option 1 (canonical): two-step build, then deploy — ADR-0003**
+
+```bash
+# 1. Build and push the image. SHORT_SHA is empty for local-source submits,
+#    so pass it explicitly to get a traceable tag alongside :latest.
+gcloud builds submit --project=agentics-dev \
+  --config=cloudbuild.yaml \
+  --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)" \
+  .
+
+# 2. Promote the built image to Cloud Run.
+gcloud run deploy llm-orchestrator --project=agentics-dev --region=us-central1 \
+  --image=us-central1-docker.pkg.dev/agentics-dev/cloud-run-source-deploy/llm-orchestrator:latest
+```
+
+Before spending a build, verify the upload manifest — this is free, instant, and
+is the direct regression test for the ADR-0003 root cause:
+
+```bash
+gcloud meta list-files-for-upload | grep -xE 'Dockerfile|Cargo.toml|Cargo.lock'
+gcloud meta list-files-for-upload | wc -l                                        # ~148, not 25
+gcloud meta list-files-for-upload | grep -c 'llm-orchestrator-benchmarks/src/benchmarks'  # must be non-zero
+```
+
+**Option 2: Direct Deploy Script**
 ```bash
 ./deploy/gcloud/deploy.sh agentics-dev dev us-central1
 ```
 
-**Option 2: Cloud Build**
+**Option 3: Full Cloud Build pipeline (builds, pushes and deploys in one run)**
 ```bash
 gcloud builds submit \
   --config=deploy/gcloud/cloudbuild.yaml \
   --substitutions=_PLATFORM_ENV=dev,_REGION=us-central1
 ```
 
-**Option 3: Manual gcloud**
+**Option 4: Manual gcloud**
 ```bash
 # Build
 docker build -t gcr.io/agentics-dev/llm-orchestrator:dev .

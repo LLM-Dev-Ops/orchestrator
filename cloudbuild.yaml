@@ -1,0 +1,25 @@
+# Default machine type is deliberate: a measured cold build of this
+# workspace completes in ~7m44s on it (ADR-0003 Finding 2). Do not add
+# options.machineType without a measurement justifying the spend.
+timeout: 1800s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - '$_IMAGE:$SHORT_SHA'
+      - -t
+      - '$_IMAGE:latest'
+      - .
+
+substitutions:
+  _IMAGE: us-central1-docker.pkg.dev/agentics-dev/cloud-run-source-deploy/llm-orchestrator
+
+images:
+  - '$_IMAGE:$SHORT_SHA'
+  - '$_IMAGE:latest'
