@@ -256,11 +256,14 @@ impl StateMachineAgent {
                 // Force transition - skip validation
                 (true, TransitionStatus::Forced, request.target_state.clone())
             } else if !validation.valid {
-                // Validation failed
-                let status = if !validation.source_state_matches || !validation.target_state_exists {
-                    TransitionStatus::Invalid
-                } else {
+                // `Blocked` is reserved for an edge the state machine permits but a guard rule
+                // rejects. An edge the machine does not declare at all is `Invalid`.
+                let status = if state_machine
+                    .is_valid_transition(&request.current_state, &request.target_state)
+                {
                     TransitionStatus::Blocked
+                } else {
+                    TransitionStatus::Invalid
                 };
                 (false, status, request.current_state.clone())
             } else if request.current_state == request.target_state {
@@ -618,11 +621,13 @@ impl StateMachineAgent {
             }
         }
 
-        // Check if transition is valid
-        let transition_valid = state_machine.is_valid_transition(
-            &request.current_state,
-            &request.target_state,
-        );
+        // Check if transition is valid. A self-transition changes nothing, so it is valid
+        // regardless of whether the machine declares a self-loop edge.
+        let transition_valid = request.current_state == request.target_state
+            || state_machine.is_valid_transition(
+                &request.current_state,
+                &request.target_state,
+            );
 
         if !transition_valid && !request.force {
             validation.valid = false;
