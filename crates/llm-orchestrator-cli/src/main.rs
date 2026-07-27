@@ -3,6 +3,8 @@
 
 //! LLM Orchestrator CLI.
 
+mod orchestrator_routes;
+
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 use colored::Colorize;
@@ -4667,6 +4669,7 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
         .route("/ready", get(ready_handler))
         .route("/execute", axum::routing::post(feu_execute_handler))
         .route("/api/v1/events", axum::routing::post(events_handler))
+        .merge(orchestrator_routes::routes())
         .with_state(phase3_state);
 
     // Parse address
@@ -4688,6 +4691,13 @@ async fn serve_http(host: &str, port: u16) -> Result<()> {
     println!("    GET  /ready   - Readiness check (Ruvector validated)");
     println!("    POST /execute        - FEU execution endpoint (Core invocation)");
     println!("    POST /api/v1/events  - Event ingestion (automation-core)");
+    println!("    POST /v1/orchestrator/workflow       - Execute a workflow");
+    println!("    POST /v1/orchestrator/scheduler      - Schedule tasks");
+    println!("    POST /v1/orchestrator/dependencies   - Resolve a dependency graph");
+    println!("    POST /v1/orchestrator/retry          - Evaluate a failure for recovery");
+    println!("    POST /v1/orchestrator/parallel       - Compute parallel execution phases");
+    println!("    POST /v1/orchestrator/state-machine  - Validate and apply a state transition");
+    println!("    POST /v1/orchestrator/swarm          - Coordinate a swarm of workers");
 
     // Start server
     let listener = tokio::net::TcpListener::bind(addr).await?;
