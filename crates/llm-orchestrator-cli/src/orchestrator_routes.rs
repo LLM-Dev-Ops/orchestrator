@@ -299,13 +299,7 @@ macro_rules! prepare {
         match parse_request::<$ty>($body) {
             Ok(request) => request,
             Err(message) => {
-                return error_response(
-                    $headers,
-                    $agent,
-                    StatusCode::BAD_REQUEST,
-                    message,
-                    $started,
-                )
+                return error_response($headers, $agent, StatusCode::BAD_REQUEST, message, $started)
             }
         }
     }};
@@ -325,7 +319,9 @@ macro_rules! respond {
 }
 
 fn ruvector_endpoint() -> Option<String> {
-    std::env::var(RUVECTOR_ENDPOINT_ENV).ok().filter(|s| !s.is_empty())
+    std::env::var(RUVECTOR_ENDPOINT_ENV)
+        .ok()
+        .filter(|s| !s.is_empty())
 }
 
 // ============================================================================
@@ -591,7 +587,10 @@ where
         .route("/v1/orchestrator/dependencies", post(dependencies_handler))
         .route("/v1/orchestrator/retry", post(retry_handler))
         .route("/v1/orchestrator/parallel", post(parallel_handler))
-        .route("/v1/orchestrator/state-machine", post(state_machine_handler))
+        .route(
+            "/v1/orchestrator/state-machine",
+            post(state_machine_handler),
+        )
         .route("/v1/orchestrator/swarm", post(swarm_handler))
 }
 
@@ -652,7 +651,13 @@ mod tests {
         let mut payload = Map::new();
         payload.insert("status".into(), json!("resolved"));
 
-        let value = envelope(&headers, &DEPENDENCIES, "completed", payload, Instant::now());
+        let value = envelope(
+            &headers,
+            &DEPENDENCIES,
+            "completed",
+            payload,
+            Instant::now(),
+        );
 
         // Agent identity, as published in the contract.
         assert_eq!(value["agent"], json!("dependency-resolver"));
@@ -742,7 +747,9 @@ mod tests {
         assert!(position("C") < position("D"));
 
         // B and C are independent and must share a parallel group.
-        let groups = value["parallel_groups"].as_array().expect("parallel_groups");
+        let groups = value["parallel_groups"]
+            .as_array()
+            .expect("parallel_groups");
         assert!(
             groups.iter().any(|group| {
                 let ids: Vec<&str> = group["task_ids"]
@@ -772,7 +779,10 @@ mod tests {
 
         let value = read_body(response).await;
         let error = value["error"].as_str().unwrap_or_default().to_lowercase();
-        assert!(error.contains("cycle"), "error did not name a cycle: {error}");
+        assert!(
+            error.contains("cycle"),
+            "error did not name a cycle: {error}"
+        );
     }
 
     #[tokio::test]
