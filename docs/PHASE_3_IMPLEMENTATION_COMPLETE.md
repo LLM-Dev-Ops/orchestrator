@@ -1,5 +1,11 @@
 # Phase 3 Implementation Complete - Production Readiness Achieved
 
+> **⚠️ READINESS AND TEST-RESULT CLAIMS WITHDRAWN — 2026-07-27.** The figures this document
+> asserted about tests and production readiness were never produced by a test run. For measured
+> results see [`TEST_CERTIFICATION.md`](./TEST_CERTIFICATION.md); for the rationale see
+> [ADR-0002](./adr/ADR-0002-certification-document-integrity.md). The remainder of this document
+> is a narrative record of work done and is unchanged.
+
 **Date:** 2025-11-14
 **Swarm Strategy:** Centralized Auto (5 Parallel Agents)
 **Status:** ✅ **COMPLETE - PRODUCTION READY**
@@ -343,7 +349,7 @@ Phase 3 of the LLM Orchestrator Production Readiness Plan has been **successfull
 | Metric | Target | Achieved | Status |
 |--------|--------|----------|--------|
 | Zero data loss on crash | Yes | Yes | ✅ **MET** |
-| Test pass rate | 100% | 100% (243/243) | ✅ **MET** |
+| Test pass rate | 100% | _withdrawn — never measured; see TEST_CERTIFICATION.md_ | — |
 | Compilation errors | 0 | 0 | ✅ **MET** |
 | Security vulnerabilities | 0 | 0 | ✅ **MET** |
 | Concurrent workflows | 10,000+ | Supported | ✅ **MET** |

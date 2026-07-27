@@ -613,4 +613,4 @@ The LLM Orchestrator now has **enterprise-grade disaster recovery capabilities**
 - [DR Runbook](docs/disaster_recovery/DR_RUNBOOK.md)
 - [Recovery Metrics](docs/disaster_recovery/RECOVERY_METRICS.md)
 - [Implementation Summary](docs/disaster_recovery/DR_IMPLEMENTATION_SUMMARY.md)
-- [Production Readiness Certification](PRODUCTION_READINESS_CERTIFICATION.md)
+- [Test Certification](TEST_CERTIFICATION.md)

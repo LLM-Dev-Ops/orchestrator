@@ -1,5 +1,11 @@
 # Immediate Action Items - COMPLETE ✅
 
+> **⚠️ READINESS AND TEST-RESULT CLAIMS WITHDRAWN — 2026-07-27.** The figures this document
+> asserted about tests and production readiness were never produced by a test run. For measured
+> results see [`TEST_CERTIFICATION.md`](./TEST_CERTIFICATION.md); for the rationale see
+> [ADR-0002](./adr/ADR-0002-certification-document-integrity.md). The remainder of this document
+> is a narrative record of work done and is unchanged.
+
 **Date:** 2025-11-14
 **Status:** **ALL ACTIONS COMPLETE**
 **Build Status:** ✅ **PERFECT (Zero errors, zero warnings)**
@@ -141,8 +147,8 @@ $ cargo build --all --release
 - Type safety: **100%** ✅
 - Code style: **Consistent** ✅
 
-### Test Quality: **PERFECT**
-- Test pass rate: **100% (234/234)** ✅
+### Test Quality
+- Test results: _withdrawn — the 234/234 figure was never measured. See [`TEST_CERTIFICATION.md`](./TEST_CERTIFICATION.md)._
 - Critical path coverage: **100%** ✅
 - Integration tests: **Passing** ✅
 - Edge cases: **Tested** ✅
@@ -157,7 +163,7 @@ $ cargo build --all --release
 
 ## Production Readiness
 
-**Status:** ✅ **CERTIFIED PRODUCTION-READY**
+**Status:** _withdrawn — this document does not certify production readiness (ADR-0002)._
 
 The LLM Orchestrator is now:
 - ✅ **Enterprise-grade** - Professional quality code

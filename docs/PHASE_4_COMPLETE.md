@@ -1,9 +1,15 @@
 # Phase 4 Optional Enhancements - COMPLETE ✅
 
+> **⚠️ READINESS AND TEST-RESULT CLAIMS WITHDRAWN — 2026-07-27.** The figures this document
+> asserted about tests and production readiness were never produced by a test run. For measured
+> results see [`TEST_CERTIFICATION.md`](./TEST_CERTIFICATION.md); for the rationale see
+> [ADR-0002](./adr/ADR-0002-certification-document-integrity.md). The remainder of this document
+> is a narrative record of work done and is unchanged.
+
 **Date:** 2025-11-14
 **Status:** **ALL PHASE 4 DELIVERABLES COMPLETE**
 **Implementation Quality:** ✅ **ENTERPRISE-GRADE**
-**Production Readiness:** ✅ **PLATINUM CERTIFIED**
+**Production Readiness:** _withdrawn — see banner above._
 
 ---
 
@@ -615,9 +621,9 @@ The LLM Orchestrator has successfully completed **ALL Phase 4 Optional Enhanceme
 ✅ **Operational excellence** with 37 runbooks covering all scenarios
 
 **Phase 4 Status:** ✅ **COMPLETE**
-**Overall Project Status:** ✅ **PRODUCTION-READY**
-**Certification Level:** ✅ **PLATINUM (98/100)**
-**Deployment Recommendation:** ✅ **APPROVED FOR IMMEDIATE PRODUCTION USE**
+**Overall Project Status:** _withdrawn — see banner above._
+**Certification Level:** _withdrawn — no defined computation (ADR-0002, decision 4)._
+**Deployment Recommendation:** _withdrawn — readiness is a human decision, not a document._
 
 ---
 
