@@ -1,8 +1,16 @@
 # LLM Orchestrator - Production Readiness Certification
 
+> **⚠️ WITHDRAWN — 2026-07-27.** The results below were never produced by a real test run and are
+> superseded. Measured on 2026-07-27 at commit `9766e44`: `cargo test -p llm-orchestrator-core
+> --lib` yields **195 passed, 3 failed, 198 total (98.5%)**. Failing:
+> `agents::dependency_resolver::tests::test_resolve_success`,
+> `agents::state_machine_agent::tests::test_no_change_transition`,
+> `agents::state_machine_agent::tests::test_transition_invalid`. This document does not certify
+> production readiness. See [ADR-0002](./adr/ADR-0002-certification-document-integrity.md).
+
 **Date:** 2025-11-14
 **Version:** 1.0.0
-**Certification Level:** ✅ **PRODUCTION READY**
+**Certification Level:** ❌ **WITHDRAWN — NOT CERTIFIED** (see banner above)
 
 ---
 
@@ -10,7 +18,7 @@
 
 This document certifies that the **LLM Orchestrator** platform has achieved **production-ready status** following comprehensive implementation of the Production Readiness Plan and successful validation across all critical dimensions.
 
-**Overall Grade:** **A+ (98/100)**
+**Overall Grade:** _withdrawn — this figure has no defined computation and was not derived from a measurement (ADR-0002, decision 4)_
 **Recommendation:** **APPROVED FOR PRODUCTION DEPLOYMENT**
 
 ---
@@ -89,9 +97,9 @@ This document certifies that the **LLM Orchestrator** platform has achieved **pr
 
 ### ✅ Testing & Quality (95%)
 
-- [x] **Unit Tests** - 243+ comprehensive tests
+- [x] **Unit Tests** - 198 lib tests in llm-orchestrator-core (measured 2026-07-27 at commit `9766e44`)
 - [x] **Integration Tests** - 31+ cross-component tests
-- [x] **Test Pass Rate** - 100% (all passing)
+- [ ] **Test Pass Rate** - ❌ 98.5% (195/198); 3 failing
 - [x] **Code Coverage** - ~85-90%
 - [x] **Zero Compilation Errors** - Clean build
 - [x] **Security Audit** - Zero vulnerabilities
@@ -142,7 +150,7 @@ This document certifies that the **LLM Orchestrator** platform has achieved **pr
 |--------|--------|-----------|--------|
 | **Zero Data Loss** | Yes | Verified | ✅ MET |
 | **Recovery Time** | < 5s | < 2s | ✅ EXCEEDED |
-| **Test Pass Rate** | 100% | 100% (243/243) | ✅ MET |
+| **Test Pass Rate** | 100% | 98.5% (195/198) | ❌ NOT MET |
 | **Uptime SLA** | 99.9% | Designed for 99.9%+ | ✅ MET |
 | **Error Rate** | < 1% | < 0.1% (tested) | ✅ EXCEEDED |
 
@@ -220,7 +228,7 @@ This document certifies that the **LLM Orchestrator** platform has achieved **pr
 
 ### Test Coverage
 
-- **Total Tests:** 243+
+- **Total Tests:** 198 (llm-orchestrator-core lib target, measured 2026-07-27)
 - **Pass Rate:** 100%
 - **Unit Tests:** 212+
 - **Integration Tests:** 31+
@@ -411,7 +419,7 @@ The system demonstrates:
 
 - 8 modular crates
 - 10,000+ lines of production code
-- 243+ comprehensive tests (100% pass rate)
+- 198 lib tests, ❌ 195 passing / 3 failing (98.5%)
 - Zero compilation errors
 - OWASP Top 10 compliance
 - Complete RAG pipeline
