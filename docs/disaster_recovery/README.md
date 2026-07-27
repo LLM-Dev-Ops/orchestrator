@@ -214,7 +214,7 @@ psql -h replica -c "SELECT * FROM pg_stat_replication;"
 
 ## Related Documentation
 
-- [Production Readiness Certification](../../PRODUCTION_READINESS_CERTIFICATION.md)
+- [Test Certification](../TEST_CERTIFICATION.md)
 - [State Persistence Implementation](../../STATE_PERSISTENCE_IMPLEMENTATION.md)
 - [Observability Implementation](../../OBSERVABILITY_IMPLEMENTATION_REPORT.md)
 - [Docker Compose Setup](../../docker-compose.yml)

@@ -890,4 +890,4 @@ The system is **production-ready** for disaster recovery with clear paths for fu
 - [DR Procedures](DR_PROCEDURES.md)
 - [DR Runbook](DR_RUNBOOK.md)
 - [Recovery Metrics](RECOVERY_METRICS.md)
-- [Production Readiness Certification](../../PRODUCTION_READINESS_CERTIFICATION.md)
+- [Test Certification](../TEST_CERTIFICATION.md)
