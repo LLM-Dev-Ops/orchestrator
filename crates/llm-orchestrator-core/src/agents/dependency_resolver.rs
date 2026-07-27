@@ -166,7 +166,7 @@ impl TaskNode {
 }
 
 /// Resolution configuration.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResolutionConfig {
     /// Maximum depth for traversal.
     #[serde(default = "default_max_depth")]
@@ -191,6 +191,20 @@ fn default_max_depth() -> usize {
 
 fn default_max_parallel() -> usize {
     16
+}
+
+// Hand-written so that `ResolutionConfig::default()` agrees with the `#[serde(default = ...)]`
+// values above; `#[derive(Default)]` silently ignores them and yields `false`/`0`.
+impl Default for ResolutionConfig {
+    fn default() -> Self {
+        Self {
+            max_depth: default_max_depth(),
+            detect_cycles: true,
+            generate_parallel_groups: true,
+            max_parallel_size: default_max_parallel(),
+            compute_critical_path: true,
+        }
+    }
 }
 
 /// Resolution response.
