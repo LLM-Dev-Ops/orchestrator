@@ -9,12 +9,12 @@
 
 | Field | Value |
 |---|---|
-| Commit | `a5ecc9fadcae1179e4699f4c549f02358dbaead2` |
+| Commit | `de5363caefb714057df1851505246e63ff8803b5` |
 | CI run ID | `local-2026-07-27` |
 | CI run URL | n/a — generated from a local run, not CI |
 | Command | `cargo nextest run --all --lib --bins --no-fail-fast --message-format libtest-json` |
 | Toolchain | `rustc 1.97.1 (8bab26f4f 2026-07-14)` |
-| Generated at (UTC) | `2026-07-27T06:00:28Z` |
+| Generated at (UTC) | `2026-07-27T06:34:57Z` |
 
 ## Results by crate
 
@@ -26,11 +26,12 @@
 | `llm-orchestrator-audit` | 16 | 0 | 0 | 16 |
 | `llm-orchestrator-auth` | 52 | 0 | 0 | 52 |
 | `llm-orchestrator-benchmarks` | 17 | 0 | 0 | 17 |
+| `llm-orchestrator-cli` | 13 | 0 | 0 | 13 |
 | `llm-orchestrator-core` | 198 | 0 | 0 | 198 |
 | `llm-orchestrator-providers` | 48 | 2 | 0 | 50 |
 | `llm-orchestrator-secrets` | 21 | 1 | 1 | 23 |
 | `llm-orchestrator-state` | 30 | 0 | 1 | 31 |
-| **Total** | **432** | **3** | **2** | **437** |
+| **Total** | **445** | **3** | **2** | **450** |
 
 ## Failures
 

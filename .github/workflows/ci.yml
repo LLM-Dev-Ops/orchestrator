@@ -111,6 +111,40 @@ jobs:
       - name: Check for unprovenanced readiness claims
         run: python3 scripts/check-certification-integrity.py docs
 
+  # The Cloud Function is a proxy since ADR-0001. Its suite asserts that every agent request
+  # reaches the engine and that every failure mode fails closed -- the properties that stop it
+  # regressing to answering requests by itself. Nothing ran it before.
+  cloud-function:
+    name: Cloud Function
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # No lockfile is committed and the suite stubs fetch rather than reaching the network,
+      # so the tests need no install step.
+      - name: Run Cloud Function tests
+        run: npm test
+
+      # The proxy must never regress to computing answers locally. These greps fail if the
+      # handlers that echoed tasks.length, or the local state-machine transition table, return.
+      - name: Assert the function performs no orchestration
+        run: |
+          set -e
+          if grep -nE 'tasks_count: Array\.isArray' functions/index.js; then
+            echo "::error::functions/index.js is computing a result locally again. See ADR-0001."
+            exit 1
+          fi
+          if grep -nE 'contract\.state_machine\[' functions/index.js; then
+            echo "::error::The local state-machine transition table is back. See ADR-0001."
+            exit 1
+          fi
+          echo "functions/index.js delegates to the engine."
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
