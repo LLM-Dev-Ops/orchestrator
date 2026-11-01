@@ -32,7 +32,7 @@ function measure(root, label) {
   for (const op of ['test', 'build', 'clippy']) checks[op] = run(root, label, op, 'cargo',
     ['+1.88.0', op, '--workspace', '--all-features', '--locked', '--offline', '-j2', ...(op === 'clippy' ? ['--all-targets', '--', '-D', 'warnings'] : [])]);
   checks.fmt = run(root, label, 'fmt', 'cargo', ['+1.88.0', 'fmt', '--all', '--', '--check'], 30);
-  checks.audit = run(root, label, 'audit', 'cargo', ['audit', '--file', 'Cargo.lock', '--no-fetch', '--json'], 30);
+  checks.audit = run(root, label, 'audit', 'cargo', ['audit', '--db', '/home/ruv/.cargo/advisory-db', '--file', 'Cargo.lock', '--no-fetch', '--json'], 30);
   checks.npmAudit = run(root, label, 'npm-audit', 'npm', ['audit', '--json'], 30);
   return {checks, probe, passingAssertions};
 }
