@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "repo": "orchestrator-agents",
+  "harnessFit": 71,
+  "compileConfidence": 100,
+  "taskCoverage": 79,
+  "toolSafety": 100,
+  "memoryUsefulness": 47,
+  "estCostPerRunUsd": 0.048,
+  "recommendedMode": "CLI + MCP",
+  "archetype": "rust-crate-harness",
+  "template": "vertical:coding",
+  "scaffoldReady": true,
+  "hardConstraints": "6/6",
+  "generatedAt": "2026-11-01T00:10:13.516Z"
+}

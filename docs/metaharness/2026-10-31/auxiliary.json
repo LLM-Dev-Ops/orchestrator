@@ -1,0 +1,202 @@
+{
+  "status": "BLOCKED",
+  "head": "1383a7fd8cdd7a987c78143984011785fc246063",
+  "main": "24b373c41cbac1d946fda31b7c86a5ff26037375",
+  "baseline": "ced91b55ef22360f69602ea8490b5d6fad047d8a",
+  "versions": {
+    "ruflo": "3.56.3",
+    "transformers": "4.3.1",
+    "metaharness": "0.4.2",
+    "darwin": "0.10.3",
+    "flywheel": "0.1.12",
+    "node": "20.20.2",
+    "rust": "1.88.0",
+    "openssl": "3.0.13"
+  },
+  "native": {
+    "holdout": {
+      "baseline": 0,
+      "candidate": 6,
+      "total": 6
+    },
+    "anchors": {
+      "baseline": 5,
+      "candidate": 5,
+      "total": 5
+    },
+    "originalAssertions": {
+      "baseline": 113,
+      "candidate": 113,
+      "lost": 0
+    },
+    "boundary": "Real loopback HTTP upstream, in-process exported-handler req/res adapter; not deployed Cloud Function, metadata-server auth or real Rust engine integration."
+  },
+  "benchmark": {
+    "trials": [
+      {
+        "i": 0,
+        "side": "baseline",
+        "exit": 1,
+        "ms": 250,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "i": 0,
+        "side": "candidate",
+        "exit": 0,
+        "ms": 228,
+        "holdout": 6,
+        "anchors": 5
+      },
+      {
+        "i": 1,
+        "side": "candidate",
+        "exit": 0,
+        "ms": 230,
+        "holdout": 6,
+        "anchors": 5
+      },
+      {
+        "i": 1,
+        "side": "baseline",
+        "exit": 1,
+        "ms": 239,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "i": 2,
+        "side": "baseline",
+        "exit": 1,
+        "ms": 244,
+        "holdout": 0,
+        "anchors": 5
+      },
+      {
+        "i": 2,
+        "side": "candidate",
+        "exit": 0,
+        "ms": 217,
+        "holdout": 6,
+        "anchors": 5
+      }
+    ],
+    "interpretation": "Three alternating fresh Node processes per side; correctness/repeatability only; no RSS or throughput claim."
+  },
+  "runtime": {
+    "bootstrapExit": 0,
+    "recoveryHead": "6454d374a939f2b5f94709b6909f4251b7204252",
+    "recoveryUpstream": "83c4850c04d6243c1f700ec4a6a0e406a7d7198a",
+    "helperDiffEmpty": true,
+    "persistentFreeInitial": "47MB",
+    "cargoHome": "/tmp/orchestrator-oct31e-cargo",
+    "fetch": "cargo +1.88.0 fetch --locked, public registry sources only, exit0",
+    "target": "/tmp/orchestrator-oct31e-target",
+    "profiles": "DEV_DEBUG=0, TEST_DEBUG=0, assertions unchanged",
+    "boundSeconds": 60,
+    "timeoutKillAfterSeconds": 5
+  },
+  "rust": {
+    "finalCommands": "baseline and candidate workspace test/build/clippy exit124 after60s each; no passing Rust test/build claim",
+    "supplementalCore": {
+      "seconds": 40,
+      "exit": 124
+    },
+    "sourcesUnchanged": true,
+    "cargoLockSha256": "3f3cc7ba406fcf09c44644bc223a0399b92e9abd45f2d760222cc9c3cc045a30"
+  },
+  "audit": {
+    "rustVulnerabilities": 29,
+    "tool": "cargo-audit0.22.2",
+    "dbRevision": "ee1a49a2769a24a596afc1c20cb33748d2769586",
+    "db": "/home/ruv/.cargo/advisory-db",
+    "npm": "ENOLOCK, not evaluated"
+  },
+  "priorAttempt": {
+    "receipt": "initial-flywheel.json",
+    "head": "daed10ab23a12540d8fdae3dd90265c58ef46655",
+    "sha256": "b5d70461b300eaa6ed7e061c3f93a82b758018e7d874d66c98a239e9a4b376e2",
+    "reason": "Correctly rejected: missing cached num-order stopped locked offline Cargo commands; native response checks remained real. Retained, not silently replaced."
+  },
+  "learning": {
+    "available": true,
+    "outcomePersisted": true,
+    "feedbackRecorded": true,
+    "trajectoryRecorded": true,
+    "modelRevision": "751bff37182d3f1213fa05d7196b954e230abad9",
+    "dimensions": 384,
+    "remoteLoading": false,
+    "kernelOffline": true,
+    "task": "orchestrator-oct31e",
+    "overallSuccess": false
+  },
+  "darwin": {
+    "score": 0.985,
+    "delta": 0,
+    "status": "NO_IMPROVEMENT",
+    "seed": 2026103120,
+    "children": 1,
+    "generations": 1,
+    "concurrency": 1,
+    "taskPass": 1,
+    "boundary": "Default native tasks execute existing root npm test, which contains legacy fetch stubs; not the new real HTTP probe and not source optimization proof.",
+    "agentPrerequisiteExit": 9
+  },
+  "conflicts": {
+    "ahead": 4,
+    "behind": 0,
+    "mergeTreeExit": 0,
+    "reverseCheckExit": 0
+  },
+  "hostedJobs": [
+    {
+      "id": 124698314780,
+      "name": "Lint",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124698314944,
+      "name": "Cloud Function",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124698314945,
+      "name": "Security Audit",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124698314953,
+      "name": "Certification Integrity",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 124698314957,
+      "name": "Test (beta)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124698314985,
+      "name": "Code Coverage",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 124698315042,
+      "name": "Test (stable)",
+      "status": "completed",
+      "conclusion": "cancelled"
+    }
+  ],
+  "merged": false,
+  "mergedMainSha": null,
+  "architectureChanged": false,
+  "noCredentialsExposed": true,
+  "noDeployPublishProvision": true,
+  "docsRevision": "2f415bf47a7beb36f6a43c24e85a509acedf9ebb"
+}

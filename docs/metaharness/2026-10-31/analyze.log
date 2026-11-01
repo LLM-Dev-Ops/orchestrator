@@ -1,0 +1,19 @@
+harness analyze-repo — /tmp/orchestrator-oct31e-tools
+
+Languages: rust, typescript
+Signals: claude, ci
+
+Best archetype: typescript-sdk-harness  (65% · lexical)
+Harness:  orchestrator-oct31e-tools-harness  ·  template vertical:coding  ·  hosts claude-code
+MCP: local  ·  risk: shell gated, network gated, file-write read-scoped
+Agents:   architect, implementer, reviewer, test-writer
+Commands: doctor, review-diff
+Suggested commands (execution disabled, never run):
+  - cargo build  [trust: inferred]
+  - npm test  [trust: inferred]
+  - cargo test  [trust: inferred]
+
+Wrote: /tmp/orchestrator-oct31e-tools/repo-profile.json
+Wrote: /tmp/orchestrator-oct31e-tools/harness-plan.json
+
+Scaffold it:  harness analyze-repo . --scaffold orchestrator-oct31e-tools-harness

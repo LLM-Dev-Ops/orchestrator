@@ -1,0 +1,822 @@
+{
+  "baselineRevision": "ced91b55ef22360f69602ea8490b5d6fad047d8a",
+  "candidateRevision": "daed10ab23a12540d8fdae3dd90265c58ef46655",
+  "baseline": {
+    "checks": {
+      "syntax": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "15",
+          "/usr/bin/node",
+          "--check",
+          "functions/index.js"
+        ],
+        "exit": 0,
+        "signal": null,
+        "ms": 31,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pass": true
+      },
+      "probe": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "20",
+          "/usr/bin/node",
+          "tests/proxy-response-probe.cjs",
+          "."
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 199,
+        "sha256": "ed29ecefdcf9d9095e10de87a4a72e995b310b729863d908e17561b84350c62c",
+        "pass": false
+      },
+      "node": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "/usr/bin/node",
+          "functions/test.js"
+        ],
+        "exit": 0,
+        "signal": null,
+        "ms": 55,
+        "sha256": "0a1afb5333a65c83afb9b9084eba795d33f5c8ee13e9d661bd65df85e6ce0583",
+        "pass": true
+      },
+      "test": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "test",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 496,
+        "sha256": "60263e74dc200706e4133c910b1227eece7374839d4b882e9a7cc3109622bd68",
+        "pass": false
+      },
+      "build": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "build",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 86,
+        "sha256": "60263e74dc200706e4133c910b1227eece7374839d4b882e9a7cc3109622bd68",
+        "pass": false
+      },
+      "clippy": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "clippy",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 129,
+        "sha256": "60263e74dc200706e4133c910b1227eece7374839d4b882e9a7cc3109622bd68",
+        "pass": false
+      },
+      "fmt": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "cargo",
+          "+1.88.0",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 744,
+        "sha256": "b8d5f49bf07216e9fb921462f9a1e5d8a9affa79aa752fe4b9e0a4cbee872ba8",
+        "pass": false
+      },
+      "audit": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "cargo",
+          "audit",
+          "--file",
+          "Cargo.lock",
+          "--no-fetch",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 951,
+        "sha256": "66d5a4a2f78c0ffd1174960cd0ec5f35dd3f78e3ee852c4c6ac0926818370b12",
+        "pass": false
+      },
+      "npmAudit": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "npm",
+          "audit",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 710,
+        "sha256": "f913fc92e155729b3e9a6e50552e852d23f1dca5b82db05b3a4922d15eb59fa2",
+        "pass": false
+      }
+    },
+    "probe": {
+      "holdout": [
+        {
+          "name": "html",
+          "status": 502,
+          "passed": false
+        },
+        {
+          "name": "malformed",
+          "status": 502,
+          "passed": false
+        },
+        {
+          "name": "large_json",
+          "status": 200,
+          "passed": false
+        },
+        {
+          "name": "unicode_bytes",
+          "status": 200,
+          "passed": false
+        },
+        {
+          "name": "chunked",
+          "status": 200,
+          "passed": false
+        },
+        {
+          "name": "large_html",
+          "status": 502,
+          "passed": false
+        }
+      ],
+      "anchors": [
+        {
+          "name": "anchor_200",
+          "passed": true
+        },
+        {
+          "name": "anchor_401",
+          "passed": true
+        },
+        {
+          "name": "anchor_429",
+          "passed": true
+        },
+        {
+          "name": "anchor_503",
+          "passed": true
+        },
+        {
+          "name": "near_limit",
+          "passed": true
+        }
+      ]
+    },
+    "passingAssertions": [
+      "  PASS: /health is 200 when the engine answers",
+      "  PASS: /health is 503 when the engine is down",
+      "  PASS: /health lists 7 agents",
+      "  PASS: /health reports healthy",
+      "  PASS: /health reports unhealthy",
+      "  PASS: /ready is 200 when the engine answers",
+      "  PASS: /ready is 503 with no engine configured",
+      "  PASS: /ready is non-200 when the engine is unreachable (got 503)",
+      "  PASS: /ready reports ready: false",
+      "  PASS: /ready reports ready: true",
+      "  PASS: /ready reports the engine unreachable",
+      "  PASS: 404 includes available_routes",
+      "  PASS: 404: first layer is AGENT_ROUTING",
+      "  PASS: 404: has execution_metadata",
+      "  PASS: 404: has layers_executed array",
+      "  PASS: 404: service is orchestrator-agents",
+      "  PASS: A cyclic graph comes back as 400, not 200",
+      "  PASS: A non-JSON upstream body yields 502",
+      "  PASS: A timeout yields 504",
+      "  PASS: All contracts returned",
+      "  PASS: An unconfigured engine yields 503",
+      "  PASS: An unreachable engine yields 502, never a fabricated 200",
+      "  PASS: Body is identical to the engine response -- the proxy adds nothing",
+      "  PASS: CORS headers include X-Correlation-ID",
+      "  PASS: CORS methods include POST",
+      "  PASS: CORS origin header set",
+      "  PASS: CORS preflight returns 204",
+      "  PASS: Caller correlation ID is propagated upstream",
+      "  PASS: Contract exists for dependencies",
+      "  PASS: Contract exists for parallel",
+      "  PASS: Contract exists for retry",
+      "  PASS: Contract exists for scheduler",
+      "  PASS: Contract exists for state-machine",
+      "  PASS: Contract exists for swarm",
+      "  PASS: Contract exists for workflow",
+      "  PASS: Contracts are served without calling the engine",
+      "  PASS: Correct contract returned",
+      "  PASS: Engine URL is the dependencies route (got https://engine.test.invalid/v1/orchestrator/dependencies)",
+      "  PASS: Engine is called with POST",
+      "  PASS: Engine was called exactly once",
+      "  PASS: GET on an agent route returns 405",
+      "  PASS: Health: first layer is AGENT_ROUTING",
+      "  PASS: Health: has execution_metadata",
+      "  PASS: Health: has layers_executed array",
+      "  PASS: Health: service is orchestrator-agents",
+      "  PASS: Per-agent status follows the engine rather than being hardcoded healthy",
+      "  PASS: Request body is forwarded to the engine",
+      "  PASS: Root lists 7 agents",
+      "  PASS: Root returns 200",
+      "  PASS: Root: first layer is AGENT_ROUTING",
+      "  PASS: Root: has execution_metadata",
+      "  PASS: Root: has layers_executed array",
+      "  PASS: Root: service is orchestrator-agents",
+      "  PASS: Single contract returns 200",
+      "  PASS: The engine error message reaches the caller",
+      "  PASS: The engine owns the envelope; the proxy does not overwrite it",
+      "  PASS: The local transition-table lookup has been deleted -- one source of truth",
+      "  PASS: The response says the engine is unconfigured",
+      "  PASS: The transport failure is reported",
+      "  PASS: Unknown contract returns 404",
+      "  PASS: Unknown route returns 404",
+      "  PASS: Upstream 200 is propagated",
+      "  PASS: dependencies contract has agent_id",
+      "  PASS: dependencies contract has agent_version",
+      "  PASS: dependencies contract has classification",
+      "  PASS: dependencies contract has description",
+      "  PASS: dependencies contract has input schema",
+      "  PASS: dependencies contract has output schema",
+      "  PASS: dependencies proxies to /v1/orchestrator/dependencies",
+      "  PASS: parallel contract has agent_id",
+      "  PASS: parallel contract has agent_version",
+      "  PASS: parallel contract has classification",
+      "  PASS: parallel contract has description",
+      "  PASS: parallel contract has input schema",
+      "  PASS: parallel contract has output schema",
+      "  PASS: parallel proxies to /v1/orchestrator/parallel",
+      "  PASS: retry contract has agent_id",
+      "  PASS: retry contract has agent_version",
+      "  PASS: retry contract has classification",
+      "  PASS: retry contract has description",
+      "  PASS: retry contract has input schema",
+      "  PASS: retry contract has output schema",
+      "  PASS: retry proxies to /v1/orchestrator/retry",
+      "  PASS: scheduler contract has agent_id",
+      "  PASS: scheduler contract has agent_version",
+      "  PASS: scheduler contract has classification",
+      "  PASS: scheduler contract has description",
+      "  PASS: scheduler contract has input schema",
+      "  PASS: scheduler contract has output schema",
+      "  PASS: scheduler proxies to /v1/orchestrator/scheduler",
+      "  PASS: state-machine contract has agent_id",
+      "  PASS: state-machine contract has agent_version",
+      "  PASS: state-machine contract has classification",
+      "  PASS: state-machine contract has description",
+      "  PASS: state-machine contract has input schema",
+      "  PASS: state-machine contract has output schema",
+      "  PASS: state-machine defers to the engine instead of deciding locally",
+      "  PASS: state-machine proxies to /v1/orchestrator/state-machine",
+      "  PASS: swarm contract has agent_id",
+      "  PASS: swarm contract has agent_version",
+      "  PASS: swarm contract has classification",
+      "  PASS: swarm contract has description",
+      "  PASS: swarm contract has input schema",
+      "  PASS: swarm contract has output schema",
+      "  PASS: swarm proxies to /v1/orchestrator/swarm",
+      "  PASS: trace_id matches X-Correlation-ID",
+      "  PASS: workflow contract has agent_id",
+      "  PASS: workflow contract has agent_version",
+      "  PASS: workflow contract has classification",
+      "  PASS: workflow contract has description",
+      "  PASS: workflow contract has input schema",
+      "  PASS: workflow contract has output schema",
+      "  PASS: workflow proxies to /v1/orchestrator/workflow"
+    ]
+  },
+  "candidate": {
+    "checks": {
+      "syntax": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "15",
+          "/usr/bin/node",
+          "--check",
+          "functions/index.js"
+        ],
+        "exit": 0,
+        "signal": null,
+        "ms": 35,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pass": true
+      },
+      "probe": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "20",
+          "/usr/bin/node",
+          "tests/proxy-response-probe.cjs",
+          "."
+        ],
+        "exit": 0,
+        "signal": null,
+        "ms": 198,
+        "sha256": "8ff051b5eebad1427fed8f0685bdea259714b8e196d394394b09d8fbe3a96238",
+        "pass": true
+      },
+      "node": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "/usr/bin/node",
+          "functions/test.js"
+        ],
+        "exit": 0,
+        "signal": null,
+        "ms": 58,
+        "sha256": "0a1afb5333a65c83afb9b9084eba795d33f5c8ee13e9d661bd65df85e6ce0583",
+        "pass": true
+      },
+      "test": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "test",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 74,
+        "sha256": "8438d6e3ce4676cdc6292a39288585d445165f32cb29969475b3b30337a75014",
+        "pass": false
+      },
+      "build": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "build",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 77,
+        "sha256": "8438d6e3ce4676cdc6292a39288585d445165f32cb29969475b3b30337a75014",
+        "pass": false
+      },
+      "clippy": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "60",
+          "cargo",
+          "+1.88.0",
+          "clippy",
+          "--workspace",
+          "--all-features",
+          "--locked",
+          "--offline",
+          "-j2",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "exit": 101,
+        "signal": null,
+        "ms": 99,
+        "sha256": "8438d6e3ce4676cdc6292a39288585d445165f32cb29969475b3b30337a75014",
+        "pass": false
+      },
+      "fmt": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "cargo",
+          "+1.88.0",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 629,
+        "sha256": "9fa4d7f1416e51983068b7fb0e7a2a96afb911d70869ab72f36e8a744bc3cef5",
+        "pass": false
+      },
+      "audit": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "cargo",
+          "audit",
+          "--file",
+          "Cargo.lock",
+          "--no-fetch",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 350,
+        "sha256": "66d5a4a2f78c0ffd1174960cd0ec5f35dd3f78e3ee852c4c6ac0926818370b12",
+        "pass": false
+      },
+      "npmAudit": {
+        "command": [
+          "timeout",
+          "--kill-after=5",
+          "30",
+          "npm",
+          "audit",
+          "--json"
+        ],
+        "exit": 1,
+        "signal": null,
+        "ms": 367,
+        "sha256": "a24e663469ef85cef8962f066f1fccdb1c49f0963c1c18916869a67958861a28",
+        "pass": false
+      }
+    },
+    "probe": {
+      "holdout": [
+        {
+          "name": "html",
+          "status": 502,
+          "passed": true
+        },
+        {
+          "name": "malformed",
+          "status": 502,
+          "passed": true
+        },
+        {
+          "name": "large_json",
+          "status": 502,
+          "passed": true
+        },
+        {
+          "name": "unicode_bytes",
+          "status": 502,
+          "passed": true
+        },
+        {
+          "name": "chunked",
+          "status": 502,
+          "passed": true
+        },
+        {
+          "name": "large_html",
+          "status": 502,
+          "passed": true
+        }
+      ],
+      "anchors": [
+        {
+          "name": "anchor_200",
+          "passed": true
+        },
+        {
+          "name": "anchor_401",
+          "passed": true
+        },
+        {
+          "name": "anchor_429",
+          "passed": true
+        },
+        {
+          "name": "anchor_503",
+          "passed": true
+        },
+        {
+          "name": "near_limit",
+          "passed": true
+        }
+      ]
+    },
+    "passingAssertions": [
+      "  PASS: /health is 200 when the engine answers",
+      "  PASS: /health is 503 when the engine is down",
+      "  PASS: /health lists 7 agents",
+      "  PASS: /health reports healthy",
+      "  PASS: /health reports unhealthy",
+      "  PASS: /ready is 200 when the engine answers",
+      "  PASS: /ready is 503 with no engine configured",
+      "  PASS: /ready is non-200 when the engine is unreachable (got 503)",
+      "  PASS: /ready reports ready: false",
+      "  PASS: /ready reports ready: true",
+      "  PASS: /ready reports the engine unreachable",
+      "  PASS: 404 includes available_routes",
+      "  PASS: 404: first layer is AGENT_ROUTING",
+      "  PASS: 404: has execution_metadata",
+      "  PASS: 404: has layers_executed array",
+      "  PASS: 404: service is orchestrator-agents",
+      "  PASS: A cyclic graph comes back as 400, not 200",
+      "  PASS: A non-JSON upstream body yields 502",
+      "  PASS: A timeout yields 504",
+      "  PASS: All contracts returned",
+      "  PASS: An unconfigured engine yields 503",
+      "  PASS: An unreachable engine yields 502, never a fabricated 200",
+      "  PASS: Body is identical to the engine response -- the proxy adds nothing",
+      "  PASS: CORS headers include X-Correlation-ID",
+      "  PASS: CORS methods include POST",
+      "  PASS: CORS origin header set",
+      "  PASS: CORS preflight returns 204",
+      "  PASS: Caller correlation ID is propagated upstream",
+      "  PASS: Contract exists for dependencies",
+      "  PASS: Contract exists for parallel",
+      "  PASS: Contract exists for retry",
+      "  PASS: Contract exists for scheduler",
+      "  PASS: Contract exists for state-machine",
+      "  PASS: Contract exists for swarm",
+      "  PASS: Contract exists for workflow",
+      "  PASS: Contracts are served without calling the engine",
+      "  PASS: Correct contract returned",
+      "  PASS: Engine URL is the dependencies route (got https://engine.test.invalid/v1/orchestrator/dependencies)",
+      "  PASS: Engine is called with POST",
+      "  PASS: Engine was called exactly once",
+      "  PASS: GET on an agent route returns 405",
+      "  PASS: Health: first layer is AGENT_ROUTING",
+      "  PASS: Health: has execution_metadata",
+      "  PASS: Health: has layers_executed array",
+      "  PASS: Health: service is orchestrator-agents",
+      "  PASS: Per-agent status follows the engine rather than being hardcoded healthy",
+      "  PASS: Request body is forwarded to the engine",
+      "  PASS: Root lists 7 agents",
+      "  PASS: Root returns 200",
+      "  PASS: Root: first layer is AGENT_ROUTING",
+      "  PASS: Root: has execution_metadata",
+      "  PASS: Root: has layers_executed array",
+      "  PASS: Root: service is orchestrator-agents",
+      "  PASS: Single contract returns 200",
+      "  PASS: The engine error message reaches the caller",
+      "  PASS: The engine owns the envelope; the proxy does not overwrite it",
+      "  PASS: The local transition-table lookup has been deleted -- one source of truth",
+      "  PASS: The response says the engine is unconfigured",
+      "  PASS: The transport failure is reported",
+      "  PASS: Unknown contract returns 404",
+      "  PASS: Unknown route returns 404",
+      "  PASS: Upstream 200 is propagated",
+      "  PASS: dependencies contract has agent_id",
+      "  PASS: dependencies contract has agent_version",
+      "  PASS: dependencies contract has classification",
+      "  PASS: dependencies contract has description",
+      "  PASS: dependencies contract has input schema",
+      "  PASS: dependencies contract has output schema",
+      "  PASS: dependencies proxies to /v1/orchestrator/dependencies",
+      "  PASS: parallel contract has agent_id",
+      "  PASS: parallel contract has agent_version",
+      "  PASS: parallel contract has classification",
+      "  PASS: parallel contract has description",
+      "  PASS: parallel contract has input schema",
+      "  PASS: parallel contract has output schema",
+      "  PASS: parallel proxies to /v1/orchestrator/parallel",
+      "  PASS: retry contract has agent_id",
+      "  PASS: retry contract has agent_version",
+      "  PASS: retry contract has classification",
+      "  PASS: retry contract has description",
+      "  PASS: retry contract has input schema",
+      "  PASS: retry contract has output schema",
+      "  PASS: retry proxies to /v1/orchestrator/retry",
+      "  PASS: scheduler contract has agent_id",
+      "  PASS: scheduler contract has agent_version",
+      "  PASS: scheduler contract has classification",
+      "  PASS: scheduler contract has description",
+      "  PASS: scheduler contract has input schema",
+      "  PASS: scheduler contract has output schema",
+      "  PASS: scheduler proxies to /v1/orchestrator/scheduler",
+      "  PASS: state-machine contract has agent_id",
+      "  PASS: state-machine contract has agent_version",
+      "  PASS: state-machine contract has classification",
+      "  PASS: state-machine contract has description",
+      "  PASS: state-machine contract has input schema",
+      "  PASS: state-machine contract has output schema",
+      "  PASS: state-machine defers to the engine instead of deciding locally",
+      "  PASS: state-machine proxies to /v1/orchestrator/state-machine",
+      "  PASS: swarm contract has agent_id",
+      "  PASS: swarm contract has agent_version",
+      "  PASS: swarm contract has classification",
+      "  PASS: swarm contract has description",
+      "  PASS: swarm contract has input schema",
+      "  PASS: swarm contract has output schema",
+      "  PASS: swarm proxies to /v1/orchestrator/swarm",
+      "  PASS: trace_id matches X-Correlation-ID",
+      "  PASS: workflow contract has agent_id",
+      "  PASS: workflow contract has agent_version",
+      "  PASS: workflow contract has classification",
+      "  PASS: workflow contract has description",
+      "  PASS: workflow contract has input schema",
+      "  PASS: workflow contract has output schema",
+      "  PASS: workflow proxies to /v1/orchestrator/workflow"
+    ]
+  },
+  "lostPassingAssertions": [],
+  "result": {
+    "liftCurve": [
+      {
+        "generation": 0,
+        "primary": 0,
+        "delta": 0,
+        "anchor": 1
+      }
+    ],
+    "promotions": [],
+    "lineage": {
+      "commits": {}
+    },
+    "replayBundle": {
+      "data_source": "LIVE",
+      "root_id": "root",
+      "chain": [
+        {
+          "id": "root",
+          "generation": 0,
+          "parents": [],
+          "mutation": null,
+          "primaryDelta": 0,
+          "anchorScore": 1,
+          "verdict": "ROOT",
+          "failureReasons": [],
+          "receipt": {
+            "payload": {
+              "kind": "root",
+              "root": "root"
+            },
+            "signature": "luHC48YczPl6DCSbkgrtHYvZBcc9ZIRkdAH1Ucr7ikjZtwI4CryNZ+VspIlJISoMgPJSV5HHik+LKUACuM/bCA==",
+            "publicKey": "MCowBQYDK2VwAyEAeoPzycG4zAXUOdVRdMSQV/2VkrTH9TgzyrMwMkSmNYY=",
+            "alg": "ed25519"
+          },
+          "createdAt": "gen-0"
+        }
+      ],
+      "all_commits": [
+        {
+          "id": "root__revision_gen1",
+          "generation": 1,
+          "parents": [
+            "root"
+          ],
+          "mutation": {
+            "target": "revision",
+            "summary": "Bound upstream responses to1MiB and redact malformed response text",
+            "inverse": {
+              "path": "functions/index.js",
+              "parentBytes": "'use strict';\n\nconst crypto = require('crypto');\nconst { AGENT_CONTRACTS } = require('./contracts');\n\n// =============================================================================\n// orchestrator-agents Cloud Function\n// Entry point: handler\n// Runtime: nodejs20\n//\n// This function does NOT orchestrate. It authenticates, applies CORS, publishes\n// contracts, and proxies every agent request to the Rust engine on Cloud Run,\n// which owns all orchestration logic. See ADR-0001.\n// =============================================================================\n\nconst SERVICE_NAME = 'orchestrator-agents';\nconst SERVICE_VERSION = '0.2.0';\nconst BASE_URL = 'https://us-central1-agentics-dev.cloudfunctions.net/orchestrator-agents';\n\nconst AGENTS = ['workflow', 'scheduler', 'dependencies', 'retry', 'parallel', 'state-machine', 'swarm'];\n\nconst AGENT_DISPLAY_NAMES = {\n  workflow: 'Workflow Orchestrator Agent',\n  scheduler: 'Task Scheduler Agent',\n  dependencies: 'Dependency Resolver Agent',\n  retry: 'Retry & Recovery Agent',\n  parallel: 'Parallelization Agent',\n  'state-machine': 'State Machine Agent',\n  swarm: 'Swarm Coordinator Agent',\n};\n\nconst AGENT_ROUTES = {\n  workflow: '/v1/orchestrator/workflow',\n  scheduler: '/v1/orchestrator/scheduler',\n  dependencies: '/v1/orchestrator/dependencies',\n  retry: '/v1/orchestrator/retry',\n  parallel: '/v1/orchestrator/parallel',\n  'state-machine': '/v1/orchestrator/state-machine',\n  swarm: '/v1/orchestrator/swarm',\n};\n\n// =============================================================================\n// Upstream engine configuration\n// =============================================================================\n\nconst ENGINE_URL = process.env.ORCHESTRATOR_ENGINE_URL;\nconst ENGINE_TIMEOUT_MS = Number(process.env.ORCHESTRATOR_ENGINE_TIMEOUT_MS || 30000);\n\n// Set only for local development against an engine that does not require auth.\nconst SKIP_AUTH = process.env.ORCHESTRATOR_ENGINE_SKIP_AUTH === 'true';\n\nconst METADATA_IDENTITY_URL =\n  'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity';\n\n// Identity tokens are valid for an hour; refresh a few minutes early.\nconst TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;\nlet cachedToken = null;\n\n/**\n * Fetches a Google-signed ID token for the Cloud Run service.\n *\n * Uses the metadata server directly rather than google-auth-library so the function keeps zero\n * runtime dependencies beyond the functions framework.\n */\nasync function getIdToken(audience) {\n  if (SKIP_AUTH) return null;\n\n  const now = Date.now();\n  if (cachedToken && cachedToken.audience === audience && cachedToken.expiresAt > now) {\n    return cachedToken.token;\n  }\n\n  const url = `${METADATA_IDENTITY_URL}?audience=${encodeURIComponent(audience)}`;\n  const response = await fetch(url, { headers: { 'Metadata-Flavor': 'Google' } });\n  if (!response.ok) {\n    throw new Error(`Metadata server returned ${response.status} fetching an ID token`);\n  }\n\n  const token = (await response.text()).trim();\n  cachedToken = { audience, token, expiresAt: now + 3600000 - TOKEN_REFRESH_MARGIN_MS };\n  return token;\n}\n\n// =============================================================================\n// CORS\n// =============================================================================\n\nfunction setCorsHeaders(res) {\n  res.set('Access-Control-Allow-Origin', '*');\n  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');\n  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Correlation-ID');\n  res.set('Access-Control-Max-Age', '3600');\n}\n\n// =============================================================================\n// Execution Metadata Builder\n//\n// Only applied to responses this function generates itself (routing, contracts, and its own\n// errors). Agent responses come back from the engine with the envelope already applied and are\n// forwarded unmodified.\n// =============================================================================\n\nfunction buildExecutionMetadata(req) {\n  return {\n    trace_id: req.headers['x-correlation-id'] || crypto.randomUUID(),\n    timestamp: new Date().toISOString(),\n    service: SERVICE_NAME,\n    execution_id: crypto.randomUUID(),\n  };\n}\n\nfunction buildResponse(req, agentName, status, data, startTime) {\n  const durationMs = Date.now() - startTime;\n  const layers = [\n    { layer: 'AGENT_ROUTING', status: 'completed' },\n    { layer: `ORCHESTRATOR_${agentName.toUpperCase().replace(/-/g, '_')}`, status, duration_ms: durationMs },\n  ];\n\n  return {\n    ...data,\n    execution_metadata: buildExecutionMetadata(req),\n    layers_executed: layers,\n  };\n}\n\n// =============================================================================\n// Engine proxy\n// =============================================================================\n\n/**\n * Forwards a request to the engine and returns its status and body unmodified.\n *\n * Fails closed: if the engine is unconfigured, unreachable, or times out, this returns a 5xx.\n * It never synthesises a success, which is the defect ADR-0001 exists to remove.\n */\nasync function proxyToEngine(req, path, body) {\n  if (!ENGINE_URL) {\n    return {\n      statusCode: 503,\n      data: {\n        error: 'ORCHESTRATOR_ENGINE_URL is not configured; the orchestration engine is unreachable',\n        engine_configured: false,\n      },\n    };\n  }\n\n  const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), ENGINE_TIMEOUT_MS);\n\n  try {\n    const headers = {\n      'Content-Type': 'application/json',\n      'X-Correlation-ID': correlationId,\n    };\n\n    const token = await getIdToken(ENGINE_URL);\n    if (token) headers.Authorization = `Bearer ${token}`;\n\n    const response = await fetch(`${ENGINE_URL}${path}`, {\n      method: body === undefined ? 'GET' : 'POST',\n      headers,\n      body: body === undefined ? undefined : JSON.stringify(body),\n      signal: controller.signal,\n    });\n\n    const text = await response.text();\n    let data;\n    try {\n      data = text ? JSON.parse(text) : {};\n    } catch {\n      // A non-JSON body from the engine is a real upstream fault, not something to paper over.\n      return {\n        statusCode: 502,\n        data: {\n          error: 'Engine returned a non-JSON response',\n          upstream_status: response.status,\n          upstream_body: text.slice(0, 2048),\n        },\n      };\n    }\n\n    return { statusCode: response.status, data, correlationId, passthrough: true };\n  } catch (err) {\n    const timedOut = err.name === 'AbortError';\n    return {\n      statusCode: timedOut ? 504 : 502,\n      data: {\n        error: timedOut\n          ? `Engine did not respond within ${ENGINE_TIMEOUT_MS}ms`\n          : `Engine request failed: ${err.message}`,\n        engine_url: ENGINE_URL,\n      },\n    };\n  } finally {\n    clearTimeout(timer);\n  }\n}\n\n// =============================================================================\n// Health and readiness\n//\n// Both proxy the engine and fail closed. The previous implementation checked that seven\n// constants were seven constants, so it could never report anything but healthy.\n// =============================================================================\n\nasync function handleHealth(req) {\n  const upstream = await proxyToEngine(req, '/health');\n  const healthy = upstream.statusCode === 200;\n\n  const agentStatuses = {};\n  for (const agent of AGENTS) {\n    agentStatuses[agent] = {\n      status: healthy ? 'healthy' : 'unavailable',\n      route: AGENT_ROUTES[agent],\n      name: AGENT_DISPLAY_NAMES[agent],\n    };\n  }\n\n  return {\n    statusCode: healthy ? 200 : 503,\n    data: {\n      status: healthy ? 'healthy' : 'unhealthy',\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      engine: {\n        url: ENGINE_URL || null,\n        reachable: healthy,\n        status_code: upstream.statusCode,\n        detail: healthy ? undefined : upstream.data && upstream.data.error,\n      },\n      agents: agentStatuses,\n      agents_list: AGENTS,\n      base_url: BASE_URL,\n      timestamp: new Date().toISOString(),\n    },\n  };\n}\n\nasync function handleReady(req) {\n  const upstream = await proxyToEngine(req, '/ready');\n  const ready = upstream.statusCode === 200;\n\n  return {\n    statusCode: ready ? 200 : 503,\n    data: {\n      ready,\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      checks: {\n        engine_configured: Boolean(ENGINE_URL),\n        engine_reachable: ready,\n        engine_status_code: upstream.statusCode,\n      },\n    },\n  };\n}\n\n// =============================================================================\n// Contract Endpoint (served locally -- it is static metadata, not orchestration)\n// =============================================================================\n\nfunction handleContracts(agentName) {\n  if (agentName) {\n    const contract = AGENT_CONTRACTS[agentName];\n    if (!contract) {\n      return { statusCode: 404, data: { error: `Unknown agent: ${agentName}` } };\n    }\n    return { statusCode: 200, data: contract };\n  }\n  return { statusCode: 200, data: AGENT_CONTRACTS };\n}\n\n// =============================================================================\n// Router\n// =============================================================================\n\nfunction parseRoute(path) {\n  const normalized = path.replace(/\\/+$/, '') || '/';\n\n  if (normalized === '/' || normalized === '') return { type: 'root' };\n  if (normalized === '/health') return { type: 'health' };\n  if (normalized === '/ready') return { type: 'ready' };\n\n  // /v1/orchestrator/contracts/:agent?\n  const contractMatch = normalized.match(/^\\/v1\\/orchestrator\\/contracts(?:\\/([a-z-]+))?$/);\n  if (contractMatch) return { type: 'contracts', agent: contractMatch[1] || null };\n\n  // /v1/orchestrator/:agent\n  const agentMatch = normalized.match(/^\\/v1\\/orchestrator\\/([a-z-]+)$/);\n  if (agentMatch && AGENTS.includes(agentMatch[1])) {\n    return { type: 'agent', agent: agentMatch[1] };\n  }\n\n  return { type: 'not_found' };\n}\n\n// =============================================================================\n// Entry Point\n// =============================================================================\n\n/**\n * Cloud Function HTTP handler.\n *\n * @param {import('express').Request} req\n * @param {import('express').Response} res\n */\nconst handler = async (req, res) => {\n  const startTime = Date.now();\n\n  // CORS preflight\n  setCorsHeaders(res);\n  if (req.method === 'OPTIONS') {\n    res.status(204).send('');\n    return;\n  }\n\n  const route = parseRoute(req.path);\n\n  switch (route.type) {\n    // ------------------------------------------------------------------\n    // Root\n    // ------------------------------------------------------------------\n    case 'root': {\n      const body = buildResponse(req, 'ROUTER', 'completed', {\n        service: SERVICE_NAME,\n        version: SERVICE_VERSION,\n        description: 'Orchestrator Agents Cloud Function — authenticating proxy to the Rust orchestration engine.',\n        engine_url: ENGINE_URL || null,\n        agents: AGENTS.map((a) => ({\n          name: AGENT_DISPLAY_NAMES[a],\n          route: AGENT_ROUTES[a],\n          contract: `/v1/orchestrator/contracts/${a}`,\n        })),\n        endpoints: {\n          health: '/health',\n          ready: '/ready',\n          contracts: '/v1/orchestrator/contracts',\n        },\n      }, startTime);\n      res.status(200).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Health\n    // ------------------------------------------------------------------\n    case 'health': {\n      const result = await handleHealth(req);\n      const body = buildResponse(req, 'HEALTH', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Ready\n    // ------------------------------------------------------------------\n    case 'ready': {\n      const result = await handleReady(req);\n      const body = buildResponse(req, 'READY', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Contracts\n    // ------------------------------------------------------------------\n    case 'contracts': {\n      const result = handleContracts(route.agent);\n      const body = buildResponse(req, 'CONTRACTS', 'completed', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Agent routes — proxied to the engine\n    // ------------------------------------------------------------------\n    case 'agent': {\n      if (req.method !== 'POST') {\n        const body = buildResponse(req, route.agent, 'error', {\n          error: `Method ${req.method} not allowed. Use POST.`,\n          agent: route.agent,\n        }, startTime);\n        res.status(405).json(body);\n        return;\n      }\n\n      const result = await proxyToEngine(req, AGENT_ROUTES[route.agent], req.body || {});\n\n      if (result.passthrough) {\n        // The engine already applied the envelope. Forward status and body unmodified so there\n        // is exactly one source of truth for what happened.\n        res.set('X-Correlation-ID', result.correlationId);\n        res.status(result.statusCode).json(result.data);\n        return;\n      }\n\n      // Proxy-level failure: the engine never answered, so this function describes its own error.\n      const body = buildResponse(req, route.agent, 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Not found\n    // ------------------------------------------------------------------\n    default: {\n      const body = buildResponse(req, 'ROUTER', 'error', {\n        error: 'Route not found',\n        path: req.path,\n        available_routes: Object.values(AGENT_ROUTES).concat(['/health', '/ready', '/v1/orchestrator/contracts']),\n      }, startTime);\n      res.status(404).json(body);\n      return;\n    }\n  }\n};\n\nmodule.exports = { handler };\n",
+              "sha256": "d83bf880cfcc7ffaca67afda65298904a48b10be60edaa4a08f09e458cae1b56"
+            }
+          },
+          "primaryDelta": 1,
+          "anchorScore": null,
+          "verdict": "REJECTED",
+          "failureReasons": [
+            "safety_regressed"
+          ],
+          "receipt": {
+            "payload": {
+              "kind": "candidate",
+              "id": "root__revision_gen1",
+              "target": "revision",
+              "verdict": "REJECTED",
+              "primaryDelta": 1,
+              "baselineScore": {
+                "primary": 0,
+                "noopRate": 1,
+                "costPerWin": 0,
+                "regressed": true
+              },
+              "candidateScore": {
+                "primary": 1,
+                "noopRate": 0,
+                "costPerWin": 0,
+                "regressed": true
+              },
+              "anchorScore": null,
+              "failureReasons": [
+                "safety_regressed"
+              ],
+              "parents": [
+                "root"
+              ],
+              "generation": 1
+            },
+            "signature": "NrkYWg1eQQcT7UcVM8zmFttoN80oVzEeKuggkJujRGTkmZxKCsZ4HoRrnLb4Si7pD1182A2rn2eTl8kyN+arBw==",
+            "publicKey": "MCowBQYDK2VwAyEAeoPzycG4zAXUOdVRdMSQV/2VkrTH9TgzyrMwMkSmNYY=",
+            "alg": "ed25519"
+          },
+          "createdAt": "gen-1",
+          "baselineScore": {
+            "primary": 0,
+            "noopRate": 1,
+            "costPerWin": 0,
+            "regressed": true
+          },
+          "candidateScore": {
+            "primary": 1,
+            "noopRate": 0,
+            "costPerWin": 0,
+            "regressed": true
+          }
+        }
+      ],
+      "lift_curve": [
+        {
+          "generation": 0,
+          "primary": 0,
+          "delta": 0,
+          "anchor": 1
+        }
+      ],
+      "gate_fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+      "verified_improvements": 0,
+      "anchor_surviving_improvements": 0,
+      "milestone_reached": false,
+      "created_at": "gen-1"
+    },
+    "generationsRun": 1,
+    "milestoneReached": false,
+    "finalPolicy": {
+      "revision": "ced91b55ef22360f69602ea8490b5d6fad047d8a"
+    }
+  },
+  "replay": {
+    "pass": true,
+    "checks": {
+      "receipts": true,
+      "reachesRoot": true,
+      "contiguousParents": true,
+      "allPromoted": true,
+      "gateUnchanged": true,
+      "gateReExecutes": true,
+      "allCommitsReceipts": true,
+      "sealedFieldsAuthentic": true
+    },
+    "failures": [],
+    "chainSummary": "gen0(root)"
+  },
+  "fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+  "rollback": {
+    "path": "functions/index.js",
+    "parentBytes": "'use strict';\n\nconst crypto = require('crypto');\nconst { AGENT_CONTRACTS } = require('./contracts');\n\n// =============================================================================\n// orchestrator-agents Cloud Function\n// Entry point: handler\n// Runtime: nodejs20\n//\n// This function does NOT orchestrate. It authenticates, applies CORS, publishes\n// contracts, and proxies every agent request to the Rust engine on Cloud Run,\n// which owns all orchestration logic. See ADR-0001.\n// =============================================================================\n\nconst SERVICE_NAME = 'orchestrator-agents';\nconst SERVICE_VERSION = '0.2.0';\nconst BASE_URL = 'https://us-central1-agentics-dev.cloudfunctions.net/orchestrator-agents';\n\nconst AGENTS = ['workflow', 'scheduler', 'dependencies', 'retry', 'parallel', 'state-machine', 'swarm'];\n\nconst AGENT_DISPLAY_NAMES = {\n  workflow: 'Workflow Orchestrator Agent',\n  scheduler: 'Task Scheduler Agent',\n  dependencies: 'Dependency Resolver Agent',\n  retry: 'Retry & Recovery Agent',\n  parallel: 'Parallelization Agent',\n  'state-machine': 'State Machine Agent',\n  swarm: 'Swarm Coordinator Agent',\n};\n\nconst AGENT_ROUTES = {\n  workflow: '/v1/orchestrator/workflow',\n  scheduler: '/v1/orchestrator/scheduler',\n  dependencies: '/v1/orchestrator/dependencies',\n  retry: '/v1/orchestrator/retry',\n  parallel: '/v1/orchestrator/parallel',\n  'state-machine': '/v1/orchestrator/state-machine',\n  swarm: '/v1/orchestrator/swarm',\n};\n\n// =============================================================================\n// Upstream engine configuration\n// =============================================================================\n\nconst ENGINE_URL = process.env.ORCHESTRATOR_ENGINE_URL;\nconst ENGINE_TIMEOUT_MS = Number(process.env.ORCHESTRATOR_ENGINE_TIMEOUT_MS || 30000);\n\n// Set only for local development against an engine that does not require auth.\nconst SKIP_AUTH = process.env.ORCHESTRATOR_ENGINE_SKIP_AUTH === 'true';\n\nconst METADATA_IDENTITY_URL =\n  'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity';\n\n// Identity tokens are valid for an hour; refresh a few minutes early.\nconst TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;\nlet cachedToken = null;\n\n/**\n * Fetches a Google-signed ID token for the Cloud Run service.\n *\n * Uses the metadata server directly rather than google-auth-library so the function keeps zero\n * runtime dependencies beyond the functions framework.\n */\nasync function getIdToken(audience) {\n  if (SKIP_AUTH) return null;\n\n  const now = Date.now();\n  if (cachedToken && cachedToken.audience === audience && cachedToken.expiresAt > now) {\n    return cachedToken.token;\n  }\n\n  const url = `${METADATA_IDENTITY_URL}?audience=${encodeURIComponent(audience)}`;\n  const response = await fetch(url, { headers: { 'Metadata-Flavor': 'Google' } });\n  if (!response.ok) {\n    throw new Error(`Metadata server returned ${response.status} fetching an ID token`);\n  }\n\n  const token = (await response.text()).trim();\n  cachedToken = { audience, token, expiresAt: now + 3600000 - TOKEN_REFRESH_MARGIN_MS };\n  return token;\n}\n\n// =============================================================================\n// CORS\n// =============================================================================\n\nfunction setCorsHeaders(res) {\n  res.set('Access-Control-Allow-Origin', '*');\n  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');\n  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Correlation-ID');\n  res.set('Access-Control-Max-Age', '3600');\n}\n\n// =============================================================================\n// Execution Metadata Builder\n//\n// Only applied to responses this function generates itself (routing, contracts, and its own\n// errors). Agent responses come back from the engine with the envelope already applied and are\n// forwarded unmodified.\n// =============================================================================\n\nfunction buildExecutionMetadata(req) {\n  return {\n    trace_id: req.headers['x-correlation-id'] || crypto.randomUUID(),\n    timestamp: new Date().toISOString(),\n    service: SERVICE_NAME,\n    execution_id: crypto.randomUUID(),\n  };\n}\n\nfunction buildResponse(req, agentName, status, data, startTime) {\n  const durationMs = Date.now() - startTime;\n  const layers = [\n    { layer: 'AGENT_ROUTING', status: 'completed' },\n    { layer: `ORCHESTRATOR_${agentName.toUpperCase().replace(/-/g, '_')}`, status, duration_ms: durationMs },\n  ];\n\n  return {\n    ...data,\n    execution_metadata: buildExecutionMetadata(req),\n    layers_executed: layers,\n  };\n}\n\n// =============================================================================\n// Engine proxy\n// =============================================================================\n\n/**\n * Forwards a request to the engine and returns its status and body unmodified.\n *\n * Fails closed: if the engine is unconfigured, unreachable, or times out, this returns a 5xx.\n * It never synthesises a success, which is the defect ADR-0001 exists to remove.\n */\nasync function proxyToEngine(req, path, body) {\n  if (!ENGINE_URL) {\n    return {\n      statusCode: 503,\n      data: {\n        error: 'ORCHESTRATOR_ENGINE_URL is not configured; the orchestration engine is unreachable',\n        engine_configured: false,\n      },\n    };\n  }\n\n  const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), ENGINE_TIMEOUT_MS);\n\n  try {\n    const headers = {\n      'Content-Type': 'application/json',\n      'X-Correlation-ID': correlationId,\n    };\n\n    const token = await getIdToken(ENGINE_URL);\n    if (token) headers.Authorization = `Bearer ${token}`;\n\n    const response = await fetch(`${ENGINE_URL}${path}`, {\n      method: body === undefined ? 'GET' : 'POST',\n      headers,\n      body: body === undefined ? undefined : JSON.stringify(body),\n      signal: controller.signal,\n    });\n\n    const text = await response.text();\n    let data;\n    try {\n      data = text ? JSON.parse(text) : {};\n    } catch {\n      // A non-JSON body from the engine is a real upstream fault, not something to paper over.\n      return {\n        statusCode: 502,\n        data: {\n          error: 'Engine returned a non-JSON response',\n          upstream_status: response.status,\n          upstream_body: text.slice(0, 2048),\n        },\n      };\n    }\n\n    return { statusCode: response.status, data, correlationId, passthrough: true };\n  } catch (err) {\n    const timedOut = err.name === 'AbortError';\n    return {\n      statusCode: timedOut ? 504 : 502,\n      data: {\n        error: timedOut\n          ? `Engine did not respond within ${ENGINE_TIMEOUT_MS}ms`\n          : `Engine request failed: ${err.message}`,\n        engine_url: ENGINE_URL,\n      },\n    };\n  } finally {\n    clearTimeout(timer);\n  }\n}\n\n// =============================================================================\n// Health and readiness\n//\n// Both proxy the engine and fail closed. The previous implementation checked that seven\n// constants were seven constants, so it could never report anything but healthy.\n// =============================================================================\n\nasync function handleHealth(req) {\n  const upstream = await proxyToEngine(req, '/health');\n  const healthy = upstream.statusCode === 200;\n\n  const agentStatuses = {};\n  for (const agent of AGENTS) {\n    agentStatuses[agent] = {\n      status: healthy ? 'healthy' : 'unavailable',\n      route: AGENT_ROUTES[agent],\n      name: AGENT_DISPLAY_NAMES[agent],\n    };\n  }\n\n  return {\n    statusCode: healthy ? 200 : 503,\n    data: {\n      status: healthy ? 'healthy' : 'unhealthy',\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      engine: {\n        url: ENGINE_URL || null,\n        reachable: healthy,\n        status_code: upstream.statusCode,\n        detail: healthy ? undefined : upstream.data && upstream.data.error,\n      },\n      agents: agentStatuses,\n      agents_list: AGENTS,\n      base_url: BASE_URL,\n      timestamp: new Date().toISOString(),\n    },\n  };\n}\n\nasync function handleReady(req) {\n  const upstream = await proxyToEngine(req, '/ready');\n  const ready = upstream.statusCode === 200;\n\n  return {\n    statusCode: ready ? 200 : 503,\n    data: {\n      ready,\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      checks: {\n        engine_configured: Boolean(ENGINE_URL),\n        engine_reachable: ready,\n        engine_status_code: upstream.statusCode,\n      },\n    },\n  };\n}\n\n// =============================================================================\n// Contract Endpoint (served locally -- it is static metadata, not orchestration)\n// =============================================================================\n\nfunction handleContracts(agentName) {\n  if (agentName) {\n    const contract = AGENT_CONTRACTS[agentName];\n    if (!contract) {\n      return { statusCode: 404, data: { error: `Unknown agent: ${agentName}` } };\n    }\n    return { statusCode: 200, data: contract };\n  }\n  return { statusCode: 200, data: AGENT_CONTRACTS };\n}\n\n// =============================================================================\n// Router\n// =============================================================================\n\nfunction parseRoute(path) {\n  const normalized = path.replace(/\\/+$/, '') || '/';\n\n  if (normalized === '/' || normalized === '') return { type: 'root' };\n  if (normalized === '/health') return { type: 'health' };\n  if (normalized === '/ready') return { type: 'ready' };\n\n  // /v1/orchestrator/contracts/:agent?\n  const contractMatch = normalized.match(/^\\/v1\\/orchestrator\\/contracts(?:\\/([a-z-]+))?$/);\n  if (contractMatch) return { type: 'contracts', agent: contractMatch[1] || null };\n\n  // /v1/orchestrator/:agent\n  const agentMatch = normalized.match(/^\\/v1\\/orchestrator\\/([a-z-]+)$/);\n  if (agentMatch && AGENTS.includes(agentMatch[1])) {\n    return { type: 'agent', agent: agentMatch[1] };\n  }\n\n  return { type: 'not_found' };\n}\n\n// =============================================================================\n// Entry Point\n// =============================================================================\n\n/**\n * Cloud Function HTTP handler.\n *\n * @param {import('express').Request} req\n * @param {import('express').Response} res\n */\nconst handler = async (req, res) => {\n  const startTime = Date.now();\n\n  // CORS preflight\n  setCorsHeaders(res);\n  if (req.method === 'OPTIONS') {\n    res.status(204).send('');\n    return;\n  }\n\n  const route = parseRoute(req.path);\n\n  switch (route.type) {\n    // ------------------------------------------------------------------\n    // Root\n    // ------------------------------------------------------------------\n    case 'root': {\n      const body = buildResponse(req, 'ROUTER', 'completed', {\n        service: SERVICE_NAME,\n        version: SERVICE_VERSION,\n        description: 'Orchestrator Agents Cloud Function — authenticating proxy to the Rust orchestration engine.',\n        engine_url: ENGINE_URL || null,\n        agents: AGENTS.map((a) => ({\n          name: AGENT_DISPLAY_NAMES[a],\n          route: AGENT_ROUTES[a],\n          contract: `/v1/orchestrator/contracts/${a}`,\n        })),\n        endpoints: {\n          health: '/health',\n          ready: '/ready',\n          contracts: '/v1/orchestrator/contracts',\n        },\n      }, startTime);\n      res.status(200).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Health\n    // ------------------------------------------------------------------\n    case 'health': {\n      const result = await handleHealth(req);\n      const body = buildResponse(req, 'HEALTH', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Ready\n    // ------------------------------------------------------------------\n    case 'ready': {\n      const result = await handleReady(req);\n      const body = buildResponse(req, 'READY', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Contracts\n    // ------------------------------------------------------------------\n    case 'contracts': {\n      const result = handleContracts(route.agent);\n      const body = buildResponse(req, 'CONTRACTS', 'completed', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Agent routes — proxied to the engine\n    // ------------------------------------------------------------------\n    case 'agent': {\n      if (req.method !== 'POST') {\n        const body = buildResponse(req, route.agent, 'error', {\n          error: `Method ${req.method} not allowed. Use POST.`,\n          agent: route.agent,\n        }, startTime);\n        res.status(405).json(body);\n        return;\n      }\n\n      const result = await proxyToEngine(req, AGENT_ROUTES[route.agent], req.body || {});\n\n      if (result.passthrough) {\n        // The engine already applied the envelope. Forward status and body unmodified so there\n        // is exactly one source of truth for what happened.\n        res.set('X-Correlation-ID', result.correlationId);\n        res.status(result.statusCode).json(result.data);\n        return;\n      }\n\n      // Proxy-level failure: the engine never answered, so this function describes its own error.\n      const body = buildResponse(req, route.agent, 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Not found\n    // ------------------------------------------------------------------\n    default: {\n      const body = buildResponse(req, 'ROUTER', 'error', {\n        error: 'Route not found',\n        path: req.path,\n        available_routes: Object.values(AGENT_ROUTES).concat(['/health', '/ready', '/v1/orchestrator/contracts']),\n      }, startTime);\n      res.status(404).json(body);\n      return;\n    }\n  }\n};\n\nmodule.exports = { handler };\n",
+    "sha256": "d83bf880cfcc7ffaca67afda65298904a48b10be60edaa4a08f09e458cae1b56"
+  },
+  "limitations": "Original113assertions use existing fetch stubs; new probe uses real loopback HTTP with handler adapter, not deployed IAM/framework integration. Neutral unmeasured cost; noopRate is failed-case fraction. Rust sources/lock unchanged; all broad check failures reject promotion."
+}
