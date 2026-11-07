@@ -197,7 +197,18 @@ async function proxyToEngine(req, path, body) {
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
+      // Only the configured Rust engine is authoritative; never replay a request
+      // or accept a result from an upstream-selected redirect destination.
+      redirect: 'manual',
     });
+
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      if (response.body) await response.body.cancel();
+      return {
+        statusCode: 502,
+        data: { error: 'Engine returned an unsupported redirect', upstream_status: response.status },
+      };
+    }
 
     const text = await readEngineResponse(response);
     let data;

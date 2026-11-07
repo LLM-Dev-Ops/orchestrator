@@ -19,3 +19,4 @@ jobs:
       - run: node --check functions/index.js
       - run: node functions/test.js
       - run: node tests/proxy-response-probe.cjs .
+      - run: node tests/proxy-redirect-probe.cjs .
