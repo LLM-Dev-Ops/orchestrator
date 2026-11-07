@@ -1,0 +1,7 @@
+{
+  "date": "2026-11-06",
+  "baseline": "1383a7fd8cdd7a987c78143984011785fc246063",
+  "holdout": 5,
+  "anchors": 6,
+  "acceptance": "Never follow301/302/303/307/308 from configured engine; returnlocal502 fixed redirect error/upstreamstatus with metadata,CORS,noLocation/destinationresponse. Verify zeroactualdestinationrequests. Preserve200/401/429/503/300/304 status/body/correlation. Original113assertions andresponsecap6/5contractretained. Fivealternatingtrials,no speedup/costclaims; fullgatesrequired."
+}

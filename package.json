@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx @google-cloud/functions-framework --target=handler --port=8080",
-    "test": "node functions/test.js",
+    "test": "node functions/test.js && node tests/proxy-redirect-probe.cjs .",
     "lint": "echo 'no lint configured'"
   },
   "engines": {

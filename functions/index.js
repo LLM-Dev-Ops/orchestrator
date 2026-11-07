@@ -45,6 +45,41 @@ const AGENT_ROUTES = {
 
 const ENGINE_URL = process.env.ORCHESTRATOR_ENGINE_URL;
 const ENGINE_TIMEOUT_MS = Number(process.env.ORCHESTRATOR_ENGINE_TIMEOUT_MS || 30000);
+const MAX_ENGINE_RESPONSE_BYTES = 1048576;
+
+class EngineResponseTooLargeError extends Error {}
+
+// Bound raw bytes before decoding or JSON parsing. Cancel an oversized stream
+// instead of buffering an arbitrarily large upstream error or agent result.
+async function readEngineResponse(response) {
+  if (!response.body) {
+    const text = await response.text();
+    if (Buffer.byteLength(text, 'utf8') > MAX_ENGINE_RESPONSE_BYTES) {
+      throw new EngineResponseTooLargeError();
+    }
+    return text;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let text = '';
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_ENGINE_RESPONSE_BYTES) {
+        await reader.cancel();
+        throw new EngineResponseTooLargeError();
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    return text + decoder.decode();
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 // Set only for local development against an engine that does not require auth.
 const SKIP_AUTH = process.env.ORCHESTRATOR_ENGINE_SKIP_AUTH === 'true';
@@ -162,9 +197,20 @@ async function proxyToEngine(req, path, body) {
       headers,
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
+      // Only the configured Rust engine is authoritative; never replay a request
+      // or accept a result from an upstream-selected redirect destination.
+      redirect: 'manual',
     });
 
-    const text = await response.text();
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      if (response.body) await response.body.cancel();
+      return {
+        statusCode: 502,
+        data: { error: 'Engine returned an unsupported redirect', upstream_status: response.status },
+      };
+    }
+
+    const text = await readEngineResponse(response);
     let data;
     try {
       data = text ? JSON.parse(text) : {};
@@ -175,13 +221,18 @@ async function proxyToEngine(req, path, body) {
         data: {
           error: 'Engine returned a non-JSON response',
           upstream_status: response.status,
-          upstream_body: text.slice(0, 2048),
         },
       };
     }
 
     return { statusCode: response.status, data, correlationId, passthrough: true };
   } catch (err) {
+    if (err instanceof EngineResponseTooLargeError) {
+      return {
+        statusCode: 502,
+        data: { error: `Engine response exceeds ${MAX_ENGINE_RESPONSE_BYTES} bytes` },
+      };
+    }
     const timedOut = err.name === 'AbortError';
     return {
       statusCode: timedOut ? 504 : 502,
