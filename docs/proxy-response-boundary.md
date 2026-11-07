@@ -25,4 +25,3 @@ rewrites. Configure the canonical engine URL rather than relying on redirects.
 Other statuses, including 300 and 304, retain their existing passthrough behavior.
 Metadata-server token fetching is unchanged; this is not a general outbound
 network policy or proof of deployed IAM and Rust-engine integration.
-
