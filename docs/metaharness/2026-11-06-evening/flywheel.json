@@ -1,0 +1,2276 @@
+{
+  "parent": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+  "head": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+  "trials": [
+    {
+      "trial": 0,
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 178.868875,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5
+    },
+    {
+      "trial": 0,
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 213.532418,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.037Z",
+              "service": "orchestrator-agents",
+              "execution_id": "8696165a-3381-4865-8e6f-daed23d81d67"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 58
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.043Z",
+              "service": "orchestrator-agents",
+              "execution_id": "b87b49a2-0189-4732-9700-4ff66746d1c4"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 5
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.047Z",
+              "service": "orchestrator-agents",
+              "execution_id": "a1a2dc1b-0250-4be9-82c1-740a6b9d7a8c"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.051Z",
+              "service": "orchestrator-agents",
+              "execution_id": "0d279001-20fe-4065-97e2-5316467dbb55"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.054Z",
+              "service": "orchestrator-agents",
+              "execution_id": "431539fb-cc2b-461c-87af-8cbc6e42f624"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0
+    },
+    {
+      "trial": 1,
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 182.426605,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.236Z",
+              "service": "orchestrator-agents",
+              "execution_id": "5c48958b-a4b7-49b3-accf-7c91be378156"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 52
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.241Z",
+              "service": "orchestrator-agents",
+              "execution_id": "9b1867d8-5495-4925-adb9-80139c64388e"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.244Z",
+              "service": "orchestrator-agents",
+              "execution_id": "7ea719d4-99cf-4dcd-9968-3a83ebbbe79e"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.246Z",
+              "service": "orchestrator-agents",
+              "execution_id": "cf77b217-8133-4c39-894e-98b77fa8d469"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.248Z",
+              "service": "orchestrator-agents",
+              "execution_id": "0a25df58-c1b3-493e-8966-bfeb4f5dd580"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0
+    },
+    {
+      "trial": 1,
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 200.46335399999998,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5
+    },
+    {
+      "trial": 2,
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 183.29662699999994,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5
+    },
+    {
+      "trial": 2,
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 195.01452800000004,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.800Z",
+              "service": "orchestrator-agents",
+              "execution_id": "6389bd98-540a-4381-aa20-5346612a9a15"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 52
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.804Z",
+              "service": "orchestrator-agents",
+              "execution_id": "0f2b3e53-b3c8-461c-9754-8c3f2f3d8343"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.807Z",
+              "service": "orchestrator-agents",
+              "execution_id": "3ded7e0a-6554-4561-ba0c-d49bfe34e74d"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.809Z",
+              "service": "orchestrator-agents",
+              "execution_id": "9028f3d6-642a-45c5-9c34-082b22dde08c"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:42.811Z",
+              "service": "orchestrator-agents",
+              "execution_id": "22904dce-0004-4ecc-8f99-3e206092dd6a"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0
+    },
+    {
+      "trial": 3,
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 203.62331900000004,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.000Z",
+              "service": "orchestrator-agents",
+              "execution_id": "85d1053d-aa23-44ae-8282-cdbc1621b4de"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 57
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.005Z",
+              "service": "orchestrator-agents",
+              "execution_id": "36d2398e-a72f-46f4-8840-e43643693d09"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.008Z",
+              "service": "orchestrator-agents",
+              "execution_id": "ca3e302b-e40d-4165-ba11-c22887871020"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.010Z",
+              "service": "orchestrator-agents",
+              "execution_id": "fb1010f8-0304-478d-8975-b1906364c7cd"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.012Z",
+              "service": "orchestrator-agents",
+              "execution_id": "720c3e59-95b2-4fba-b62b-21ea6d2fb544"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0
+    },
+    {
+      "trial": 3,
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 198.0881710000001,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5
+    },
+    {
+      "trial": 4,
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 195.9386300000001,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5
+    },
+    {
+      "trial": 4,
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 183.614192,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.601Z",
+              "service": "orchestrator-agents",
+              "execution_id": "ccd3ae0d-2744-488b-bc44-9992417b0479"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 61
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.607Z",
+              "service": "orchestrator-agents",
+              "execution_id": "d0152f19-51bd-494a-9a34-caf2c06ec92d"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 6
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.611Z",
+              "service": "orchestrator-agents",
+              "execution_id": "771ee442-6b03-472b-8c49-cf84705e01cf"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 4
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.613Z",
+              "service": "orchestrator-agents",
+              "execution_id": "c17fa999-39be-4dfb-9321-3a78398b5352"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:43.616Z",
+              "service": "orchestrator-agents",
+              "execution_id": "28af2bfd-40c1-432c-afae-b8c7801e5162"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0
+    }
+  ],
+  "evaluations": [
+    {
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 188.73928199999978,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5,
+      "suite": "holdout"
+    },
+    {
+      "revision": "831a7913432cfb15d9e94e0b45db1a38c21d0f58",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 1,
+      "elapsedMs": 189.5579969999999,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "302",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "303",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "GET"
+          }
+        },
+        {
+          "name": "307",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        },
+        {
+          "name": "308",
+          "status": 200,
+          "targetRequests": 1,
+          "pass": false,
+          "body": {
+            "destination": "redirect-marker",
+            "method": "POST"
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 5,
+      "suite": "anchor"
+    },
+    {
+      "revision": "ff26db585c51355554a4eeb0d545c91546c8dbd3",
+      "command": [
+        "/usr/bin/node",
+        "tests/proxy-redirect-probe.cjs",
+        "."
+      ],
+      "exit": 0,
+      "elapsedMs": 183.875673,
+      "holdout": [
+        {
+          "name": "301",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 301,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:44.156Z",
+              "service": "orchestrator-agents",
+              "execution_id": "3221ce14-683b-4a75-a2ec-027530ff8c91"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 52
+              }
+            ]
+          }
+        },
+        {
+          "name": "302",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 302,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:44.161Z",
+              "service": "orchestrator-agents",
+              "execution_id": "64916db8-7e45-4de6-aab9-c6626309c3ab"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 5
+              }
+            ]
+          }
+        },
+        {
+          "name": "303",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 303,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:44.163Z",
+              "service": "orchestrator-agents",
+              "execution_id": "ed37f685-d638-4a8a-b901-23810bfea86e"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        },
+        {
+          "name": "307",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 307,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:44.166Z",
+              "service": "orchestrator-agents",
+              "execution_id": "5770e27b-186f-435a-8094-d433911808fe"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 3
+              }
+            ]
+          }
+        },
+        {
+          "name": "308",
+          "status": 502,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "error": "Engine returned an unsupported redirect",
+            "upstream_status": 308,
+            "execution_metadata": {
+              "trace_id": "redirect-fixture",
+              "timestamp": "2026-11-07T01:10:44.168Z",
+              "service": "orchestrator-agents",
+              "execution_id": "a4f83ae2-bb51-4e00-ae25-9020e65cc060"
+            },
+            "layers_executed": [
+              {
+                "layer": "AGENT_ROUTING",
+                "status": "completed"
+              },
+              {
+                "layer": "ORCHESTRATOR_WORKFLOW",
+                "status": "error",
+                "duration_ms": 2
+              }
+            ]
+          }
+        }
+      ],
+      "anchor": [
+        {
+          "name": "200",
+          "status": 200,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 200,
+            "engine": true
+          }
+        },
+        {
+          "name": "401",
+          "status": 401,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 401,
+            "engine": true
+          }
+        },
+        {
+          "name": "429",
+          "status": 429,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 429,
+            "engine": true
+          }
+        },
+        {
+          "name": "503",
+          "status": 503,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 503,
+            "engine": true
+          }
+        },
+        {
+          "name": "300",
+          "status": 300,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {
+            "status": 300,
+            "engine": true
+          }
+        },
+        {
+          "name": "304",
+          "status": 304,
+          "targetRequests": 0,
+          "pass": true,
+          "body": {}
+        }
+      ],
+      "totalDestinationRequests": 0,
+      "suite": "holdout"
+    }
+  ],
+  "inverse": {
+    "path": "functions/index.js",
+    "parentBytes": "'use strict';\n\nconst crypto = require('crypto');\nconst { AGENT_CONTRACTS } = require('./contracts');\n\n// =============================================================================\n// orchestrator-agents Cloud Function\n// Entry point: handler\n// Runtime: nodejs20\n//\n// This function does NOT orchestrate. It authenticates, applies CORS, publishes\n// contracts, and proxies every agent request to the Rust engine on Cloud Run,\n// which owns all orchestration logic. See ADR-0001.\n// =============================================================================\n\nconst SERVICE_NAME = 'orchestrator-agents';\nconst SERVICE_VERSION = '0.2.0';\nconst BASE_URL = 'https://us-central1-agentics-dev.cloudfunctions.net/orchestrator-agents';\n\nconst AGENTS = ['workflow', 'scheduler', 'dependencies', 'retry', 'parallel', 'state-machine', 'swarm'];\n\nconst AGENT_DISPLAY_NAMES = {\n  workflow: 'Workflow Orchestrator Agent',\n  scheduler: 'Task Scheduler Agent',\n  dependencies: 'Dependency Resolver Agent',\n  retry: 'Retry & Recovery Agent',\n  parallel: 'Parallelization Agent',\n  'state-machine': 'State Machine Agent',\n  swarm: 'Swarm Coordinator Agent',\n};\n\nconst AGENT_ROUTES = {\n  workflow: '/v1/orchestrator/workflow',\n  scheduler: '/v1/orchestrator/scheduler',\n  dependencies: '/v1/orchestrator/dependencies',\n  retry: '/v1/orchestrator/retry',\n  parallel: '/v1/orchestrator/parallel',\n  'state-machine': '/v1/orchestrator/state-machine',\n  swarm: '/v1/orchestrator/swarm',\n};\n\n// =============================================================================\n// Upstream engine configuration\n// =============================================================================\n\nconst ENGINE_URL = process.env.ORCHESTRATOR_ENGINE_URL;\nconst ENGINE_TIMEOUT_MS = Number(process.env.ORCHESTRATOR_ENGINE_TIMEOUT_MS || 30000);\nconst MAX_ENGINE_RESPONSE_BYTES = 1048576;\n\nclass EngineResponseTooLargeError extends Error {}\n\n// Bound raw bytes before decoding or JSON parsing. Cancel an oversized stream\n// instead of buffering an arbitrarily large upstream error or agent result.\nasync function readEngineResponse(response) {\n  if (!response.body) {\n    const text = await response.text();\n    if (Buffer.byteLength(text, 'utf8') > MAX_ENGINE_RESPONSE_BYTES) {\n      throw new EngineResponseTooLargeError();\n    }\n    return text;\n  }\n\n  const reader = response.body.getReader();\n  const decoder = new TextDecoder();\n  let bytes = 0;\n  let text = '';\n  try {\n    while (true) {\n      const { done, value } = await reader.read();\n      if (done) break;\n      bytes += value.byteLength;\n      if (bytes > MAX_ENGINE_RESPONSE_BYTES) {\n        await reader.cancel();\n        throw new EngineResponseTooLargeError();\n      }\n      text += decoder.decode(value, { stream: true });\n    }\n    return text + decoder.decode();\n  } finally {\n    reader.releaseLock();\n  }\n}\n\n// Set only for local development against an engine that does not require auth.\nconst SKIP_AUTH = process.env.ORCHESTRATOR_ENGINE_SKIP_AUTH === 'true';\n\nconst METADATA_IDENTITY_URL =\n  'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity';\n\n// Identity tokens are valid for an hour; refresh a few minutes early.\nconst TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;\nlet cachedToken = null;\n\n/**\n * Fetches a Google-signed ID token for the Cloud Run service.\n *\n * Uses the metadata server directly rather than google-auth-library so the function keeps zero\n * runtime dependencies beyond the functions framework.\n */\nasync function getIdToken(audience) {\n  if (SKIP_AUTH) return null;\n\n  const now = Date.now();\n  if (cachedToken && cachedToken.audience === audience && cachedToken.expiresAt > now) {\n    return cachedToken.token;\n  }\n\n  const url = `${METADATA_IDENTITY_URL}?audience=${encodeURIComponent(audience)}`;\n  const response = await fetch(url, { headers: { 'Metadata-Flavor': 'Google' } });\n  if (!response.ok) {\n    throw new Error(`Metadata server returned ${response.status} fetching an ID token`);\n  }\n\n  const token = (await response.text()).trim();\n  cachedToken = { audience, token, expiresAt: now + 3600000 - TOKEN_REFRESH_MARGIN_MS };\n  return token;\n}\n\n// =============================================================================\n// CORS\n// =============================================================================\n\nfunction setCorsHeaders(res) {\n  res.set('Access-Control-Allow-Origin', '*');\n  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');\n  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Correlation-ID');\n  res.set('Access-Control-Max-Age', '3600');\n}\n\n// =============================================================================\n// Execution Metadata Builder\n//\n// Only applied to responses this function generates itself (routing, contracts, and its own\n// errors). Agent responses come back from the engine with the envelope already applied and are\n// forwarded unmodified.\n// =============================================================================\n\nfunction buildExecutionMetadata(req) {\n  return {\n    trace_id: req.headers['x-correlation-id'] || crypto.randomUUID(),\n    timestamp: new Date().toISOString(),\n    service: SERVICE_NAME,\n    execution_id: crypto.randomUUID(),\n  };\n}\n\nfunction buildResponse(req, agentName, status, data, startTime) {\n  const durationMs = Date.now() - startTime;\n  const layers = [\n    { layer: 'AGENT_ROUTING', status: 'completed' },\n    { layer: `ORCHESTRATOR_${agentName.toUpperCase().replace(/-/g, '_')}`, status, duration_ms: durationMs },\n  ];\n\n  return {\n    ...data,\n    execution_metadata: buildExecutionMetadata(req),\n    layers_executed: layers,\n  };\n}\n\n// =============================================================================\n// Engine proxy\n// =============================================================================\n\n/**\n * Forwards a request to the engine and returns its status and body unmodified.\n *\n * Fails closed: if the engine is unconfigured, unreachable, or times out, this returns a 5xx.\n * It never synthesises a success, which is the defect ADR-0001 exists to remove.\n */\nasync function proxyToEngine(req, path, body) {\n  if (!ENGINE_URL) {\n    return {\n      statusCode: 503,\n      data: {\n        error: 'ORCHESTRATOR_ENGINE_URL is not configured; the orchestration engine is unreachable',\n        engine_configured: false,\n      },\n    };\n  }\n\n  const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), ENGINE_TIMEOUT_MS);\n\n  try {\n    const headers = {\n      'Content-Type': 'application/json',\n      'X-Correlation-ID': correlationId,\n    };\n\n    const token = await getIdToken(ENGINE_URL);\n    if (token) headers.Authorization = `Bearer ${token}`;\n\n    const response = await fetch(`${ENGINE_URL}${path}`, {\n      method: body === undefined ? 'GET' : 'POST',\n      headers,\n      body: body === undefined ? undefined : JSON.stringify(body),\n      signal: controller.signal,\n    });\n\n    const text = await readEngineResponse(response);\n    let data;\n    try {\n      data = text ? JSON.parse(text) : {};\n    } catch {\n      // A non-JSON body from the engine is a real upstream fault, not something to paper over.\n      return {\n        statusCode: 502,\n        data: {\n          error: 'Engine returned a non-JSON response',\n          upstream_status: response.status,\n        },\n      };\n    }\n\n    return { statusCode: response.status, data, correlationId, passthrough: true };\n  } catch (err) {\n    if (err instanceof EngineResponseTooLargeError) {\n      return {\n        statusCode: 502,\n        data: { error: `Engine response exceeds ${MAX_ENGINE_RESPONSE_BYTES} bytes` },\n      };\n    }\n    const timedOut = err.name === 'AbortError';\n    return {\n      statusCode: timedOut ? 504 : 502,\n      data: {\n        error: timedOut\n          ? `Engine did not respond within ${ENGINE_TIMEOUT_MS}ms`\n          : `Engine request failed: ${err.message}`,\n        engine_url: ENGINE_URL,\n      },\n    };\n  } finally {\n    clearTimeout(timer);\n  }\n}\n\n// =============================================================================\n// Health and readiness\n//\n// Both proxy the engine and fail closed. The previous implementation checked that seven\n// constants were seven constants, so it could never report anything but healthy.\n// =============================================================================\n\nasync function handleHealth(req) {\n  const upstream = await proxyToEngine(req, '/health');\n  const healthy = upstream.statusCode === 200;\n\n  const agentStatuses = {};\n  for (const agent of AGENTS) {\n    agentStatuses[agent] = {\n      status: healthy ? 'healthy' : 'unavailable',\n      route: AGENT_ROUTES[agent],\n      name: AGENT_DISPLAY_NAMES[agent],\n    };\n  }\n\n  return {\n    statusCode: healthy ? 200 : 503,\n    data: {\n      status: healthy ? 'healthy' : 'unhealthy',\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      engine: {\n        url: ENGINE_URL || null,\n        reachable: healthy,\n        status_code: upstream.statusCode,\n        detail: healthy ? undefined : upstream.data && upstream.data.error,\n      },\n      agents: agentStatuses,\n      agents_list: AGENTS,\n      base_url: BASE_URL,\n      timestamp: new Date().toISOString(),\n    },\n  };\n}\n\nasync function handleReady(req) {\n  const upstream = await proxyToEngine(req, '/ready');\n  const ready = upstream.statusCode === 200;\n\n  return {\n    statusCode: ready ? 200 : 503,\n    data: {\n      ready,\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      checks: {\n        engine_configured: Boolean(ENGINE_URL),\n        engine_reachable: ready,\n        engine_status_code: upstream.statusCode,\n      },\n    },\n  };\n}\n\n// =============================================================================\n// Contract Endpoint (served locally -- it is static metadata, not orchestration)\n// =============================================================================\n\nfunction handleContracts(agentName) {\n  if (agentName) {\n    const contract = AGENT_CONTRACTS[agentName];\n    if (!contract) {\n      return { statusCode: 404, data: { error: `Unknown agent: ${agentName}` } };\n    }\n    return { statusCode: 200, data: contract };\n  }\n  return { statusCode: 200, data: AGENT_CONTRACTS };\n}\n\n// =============================================================================\n// Router\n// =============================================================================\n\nfunction parseRoute(path) {\n  const normalized = path.replace(/\\/+$/, '') || '/';\n\n  if (normalized === '/' || normalized === '') return { type: 'root' };\n  if (normalized === '/health') return { type: 'health' };\n  if (normalized === '/ready') return { type: 'ready' };\n\n  // /v1/orchestrator/contracts/:agent?\n  const contractMatch = normalized.match(/^\\/v1\\/orchestrator\\/contracts(?:\\/([a-z-]+))?$/);\n  if (contractMatch) return { type: 'contracts', agent: contractMatch[1] || null };\n\n  // /v1/orchestrator/:agent\n  const agentMatch = normalized.match(/^\\/v1\\/orchestrator\\/([a-z-]+)$/);\n  if (agentMatch && AGENTS.includes(agentMatch[1])) {\n    return { type: 'agent', agent: agentMatch[1] };\n  }\n\n  return { type: 'not_found' };\n}\n\n// =============================================================================\n// Entry Point\n// =============================================================================\n\n/**\n * Cloud Function HTTP handler.\n *\n * @param {import('express').Request} req\n * @param {import('express').Response} res\n */\nconst handler = async (req, res) => {\n  const startTime = Date.now();\n\n  // CORS preflight\n  setCorsHeaders(res);\n  if (req.method === 'OPTIONS') {\n    res.status(204).send('');\n    return;\n  }\n\n  const route = parseRoute(req.path);\n\n  switch (route.type) {\n    // ------------------------------------------------------------------\n    // Root\n    // ------------------------------------------------------------------\n    case 'root': {\n      const body = buildResponse(req, 'ROUTER', 'completed', {\n        service: SERVICE_NAME,\n        version: SERVICE_VERSION,\n        description: 'Orchestrator Agents Cloud Function — authenticating proxy to the Rust orchestration engine.',\n        engine_url: ENGINE_URL || null,\n        agents: AGENTS.map((a) => ({\n          name: AGENT_DISPLAY_NAMES[a],\n          route: AGENT_ROUTES[a],\n          contract: `/v1/orchestrator/contracts/${a}`,\n        })),\n        endpoints: {\n          health: '/health',\n          ready: '/ready',\n          contracts: '/v1/orchestrator/contracts',\n        },\n      }, startTime);\n      res.status(200).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Health\n    // ------------------------------------------------------------------\n    case 'health': {\n      const result = await handleHealth(req);\n      const body = buildResponse(req, 'HEALTH', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Ready\n    // ------------------------------------------------------------------\n    case 'ready': {\n      const result = await handleReady(req);\n      const body = buildResponse(req, 'READY', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Contracts\n    // ------------------------------------------------------------------\n    case 'contracts': {\n      const result = handleContracts(route.agent);\n      const body = buildResponse(req, 'CONTRACTS', 'completed', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Agent routes — proxied to the engine\n    // ------------------------------------------------------------------\n    case 'agent': {\n      if (req.method !== 'POST') {\n        const body = buildResponse(req, route.agent, 'error', {\n          error: `Method ${req.method} not allowed. Use POST.`,\n          agent: route.agent,\n        }, startTime);\n        res.status(405).json(body);\n        return;\n      }\n\n      const result = await proxyToEngine(req, AGENT_ROUTES[route.agent], req.body || {});\n\n      if (result.passthrough) {\n        // The engine already applied the envelope. Forward status and body unmodified so there\n        // is exactly one source of truth for what happened.\n        res.set('X-Correlation-ID', result.correlationId);\n        res.status(result.statusCode).json(result.data);\n        return;\n      }\n\n      // Proxy-level failure: the engine never answered, so this function describes its own error.\n      const body = buildResponse(req, route.agent, 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Not found\n    // ------------------------------------------------------------------\n    default: {\n      const body = buildResponse(req, 'ROUTER', 'error', {\n        error: 'Route not found',\n        path: req.path,\n        available_routes: Object.values(AGENT_ROUTES).concat(['/health', '/ready', '/v1/orchestrator/contracts']),\n      }, startTime);\n      res.status(404).json(body);\n      return;\n    }\n  }\n};\n\nmodule.exports = { handler };\n",
+    "sha256": "123ec807951143b3ee224fc45c1a4f701a99bf68f303fec4193c9c792edbcb82"
+  },
+  "fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+  "replay": {
+    "pass": true,
+    "checks": {
+      "receipts": true,
+      "reachesRoot": true,
+      "contiguousParents": true,
+      "allPromoted": true,
+      "gateUnchanged": true,
+      "gateReExecutes": true,
+      "allCommitsReceipts": true,
+      "sealedFieldsAuthentic": true
+    },
+    "failures": [],
+    "chainSummary": "gen0(root)"
+  },
+  "promotions": [],
+  "replayBundle": {
+    "data_source": "LIVE_HTTP_UPSTREAM_ADAPTER",
+    "root_id": "root",
+    "chain": [
+      {
+        "id": "root",
+        "generation": 0,
+        "parents": [],
+        "mutation": null,
+        "primaryDelta": 0,
+        "anchorScore": 1,
+        "verdict": "ROOT",
+        "failureReasons": [],
+        "receipt": {
+          "payload": {
+            "kind": "root",
+            "root": "root"
+          },
+          "signature": "TtFaQvYa1XhFGaq3x3ycQnhgiMusuXL8wuDUiW3j70BOdIZ83c/bunLwvLaQR2ltN5BjXLxu2+vIHZYDagVbCQ==",
+          "publicKey": "MCowBQYDK2VwAyEATA0t+MOFMh4N5MtEbOucY/UfVStlPv0MfmRDZoNqc1w=",
+          "alg": "ed25519"
+        },
+        "createdAt": "gen-0"
+      }
+    ],
+    "all_commits": [
+      {
+        "id": "root__revision_gen1",
+        "generation": 1,
+        "parents": [
+          "root"
+        ],
+        "mutation": {
+          "target": "revision",
+          "summary": "Reject engine redirects without contacting destination",
+          "inverse": {
+            "path": "functions/index.js",
+            "parentBytes": "'use strict';\n\nconst crypto = require('crypto');\nconst { AGENT_CONTRACTS } = require('./contracts');\n\n// =============================================================================\n// orchestrator-agents Cloud Function\n// Entry point: handler\n// Runtime: nodejs20\n//\n// This function does NOT orchestrate. It authenticates, applies CORS, publishes\n// contracts, and proxies every agent request to the Rust engine on Cloud Run,\n// which owns all orchestration logic. See ADR-0001.\n// =============================================================================\n\nconst SERVICE_NAME = 'orchestrator-agents';\nconst SERVICE_VERSION = '0.2.0';\nconst BASE_URL = 'https://us-central1-agentics-dev.cloudfunctions.net/orchestrator-agents';\n\nconst AGENTS = ['workflow', 'scheduler', 'dependencies', 'retry', 'parallel', 'state-machine', 'swarm'];\n\nconst AGENT_DISPLAY_NAMES = {\n  workflow: 'Workflow Orchestrator Agent',\n  scheduler: 'Task Scheduler Agent',\n  dependencies: 'Dependency Resolver Agent',\n  retry: 'Retry & Recovery Agent',\n  parallel: 'Parallelization Agent',\n  'state-machine': 'State Machine Agent',\n  swarm: 'Swarm Coordinator Agent',\n};\n\nconst AGENT_ROUTES = {\n  workflow: '/v1/orchestrator/workflow',\n  scheduler: '/v1/orchestrator/scheduler',\n  dependencies: '/v1/orchestrator/dependencies',\n  retry: '/v1/orchestrator/retry',\n  parallel: '/v1/orchestrator/parallel',\n  'state-machine': '/v1/orchestrator/state-machine',\n  swarm: '/v1/orchestrator/swarm',\n};\n\n// =============================================================================\n// Upstream engine configuration\n// =============================================================================\n\nconst ENGINE_URL = process.env.ORCHESTRATOR_ENGINE_URL;\nconst ENGINE_TIMEOUT_MS = Number(process.env.ORCHESTRATOR_ENGINE_TIMEOUT_MS || 30000);\nconst MAX_ENGINE_RESPONSE_BYTES = 1048576;\n\nclass EngineResponseTooLargeError extends Error {}\n\n// Bound raw bytes before decoding or JSON parsing. Cancel an oversized stream\n// instead of buffering an arbitrarily large upstream error or agent result.\nasync function readEngineResponse(response) {\n  if (!response.body) {\n    const text = await response.text();\n    if (Buffer.byteLength(text, 'utf8') > MAX_ENGINE_RESPONSE_BYTES) {\n      throw new EngineResponseTooLargeError();\n    }\n    return text;\n  }\n\n  const reader = response.body.getReader();\n  const decoder = new TextDecoder();\n  let bytes = 0;\n  let text = '';\n  try {\n    while (true) {\n      const { done, value } = await reader.read();\n      if (done) break;\n      bytes += value.byteLength;\n      if (bytes > MAX_ENGINE_RESPONSE_BYTES) {\n        await reader.cancel();\n        throw new EngineResponseTooLargeError();\n      }\n      text += decoder.decode(value, { stream: true });\n    }\n    return text + decoder.decode();\n  } finally {\n    reader.releaseLock();\n  }\n}\n\n// Set only for local development against an engine that does not require auth.\nconst SKIP_AUTH = process.env.ORCHESTRATOR_ENGINE_SKIP_AUTH === 'true';\n\nconst METADATA_IDENTITY_URL =\n  'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity';\n\n// Identity tokens are valid for an hour; refresh a few minutes early.\nconst TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;\nlet cachedToken = null;\n\n/**\n * Fetches a Google-signed ID token for the Cloud Run service.\n *\n * Uses the metadata server directly rather than google-auth-library so the function keeps zero\n * runtime dependencies beyond the functions framework.\n */\nasync function getIdToken(audience) {\n  if (SKIP_AUTH) return null;\n\n  const now = Date.now();\n  if (cachedToken && cachedToken.audience === audience && cachedToken.expiresAt > now) {\n    return cachedToken.token;\n  }\n\n  const url = `${METADATA_IDENTITY_URL}?audience=${encodeURIComponent(audience)}`;\n  const response = await fetch(url, { headers: { 'Metadata-Flavor': 'Google' } });\n  if (!response.ok) {\n    throw new Error(`Metadata server returned ${response.status} fetching an ID token`);\n  }\n\n  const token = (await response.text()).trim();\n  cachedToken = { audience, token, expiresAt: now + 3600000 - TOKEN_REFRESH_MARGIN_MS };\n  return token;\n}\n\n// =============================================================================\n// CORS\n// =============================================================================\n\nfunction setCorsHeaders(res) {\n  res.set('Access-Control-Allow-Origin', '*');\n  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');\n  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Correlation-ID');\n  res.set('Access-Control-Max-Age', '3600');\n}\n\n// =============================================================================\n// Execution Metadata Builder\n//\n// Only applied to responses this function generates itself (routing, contracts, and its own\n// errors). Agent responses come back from the engine with the envelope already applied and are\n// forwarded unmodified.\n// =============================================================================\n\nfunction buildExecutionMetadata(req) {\n  return {\n    trace_id: req.headers['x-correlation-id'] || crypto.randomUUID(),\n    timestamp: new Date().toISOString(),\n    service: SERVICE_NAME,\n    execution_id: crypto.randomUUID(),\n  };\n}\n\nfunction buildResponse(req, agentName, status, data, startTime) {\n  const durationMs = Date.now() - startTime;\n  const layers = [\n    { layer: 'AGENT_ROUTING', status: 'completed' },\n    { layer: `ORCHESTRATOR_${agentName.toUpperCase().replace(/-/g, '_')}`, status, duration_ms: durationMs },\n  ];\n\n  return {\n    ...data,\n    execution_metadata: buildExecutionMetadata(req),\n    layers_executed: layers,\n  };\n}\n\n// =============================================================================\n// Engine proxy\n// =============================================================================\n\n/**\n * Forwards a request to the engine and returns its status and body unmodified.\n *\n * Fails closed: if the engine is unconfigured, unreachable, or times out, this returns a 5xx.\n * It never synthesises a success, which is the defect ADR-0001 exists to remove.\n */\nasync function proxyToEngine(req, path, body) {\n  if (!ENGINE_URL) {\n    return {\n      statusCode: 503,\n      data: {\n        error: 'ORCHESTRATOR_ENGINE_URL is not configured; the orchestration engine is unreachable',\n        engine_configured: false,\n      },\n    };\n  }\n\n  const correlationId = req.headers['x-correlation-id'] || crypto.randomUUID();\n  const controller = new AbortController();\n  const timer = setTimeout(() => controller.abort(), ENGINE_TIMEOUT_MS);\n\n  try {\n    const headers = {\n      'Content-Type': 'application/json',\n      'X-Correlation-ID': correlationId,\n    };\n\n    const token = await getIdToken(ENGINE_URL);\n    if (token) headers.Authorization = `Bearer ${token}`;\n\n    const response = await fetch(`${ENGINE_URL}${path}`, {\n      method: body === undefined ? 'GET' : 'POST',\n      headers,\n      body: body === undefined ? undefined : JSON.stringify(body),\n      signal: controller.signal,\n    });\n\n    const text = await readEngineResponse(response);\n    let data;\n    try {\n      data = text ? JSON.parse(text) : {};\n    } catch {\n      // A non-JSON body from the engine is a real upstream fault, not something to paper over.\n      return {\n        statusCode: 502,\n        data: {\n          error: 'Engine returned a non-JSON response',\n          upstream_status: response.status,\n        },\n      };\n    }\n\n    return { statusCode: response.status, data, correlationId, passthrough: true };\n  } catch (err) {\n    if (err instanceof EngineResponseTooLargeError) {\n      return {\n        statusCode: 502,\n        data: { error: `Engine response exceeds ${MAX_ENGINE_RESPONSE_BYTES} bytes` },\n      };\n    }\n    const timedOut = err.name === 'AbortError';\n    return {\n      statusCode: timedOut ? 504 : 502,\n      data: {\n        error: timedOut\n          ? `Engine did not respond within ${ENGINE_TIMEOUT_MS}ms`\n          : `Engine request failed: ${err.message}`,\n        engine_url: ENGINE_URL,\n      },\n    };\n  } finally {\n    clearTimeout(timer);\n  }\n}\n\n// =============================================================================\n// Health and readiness\n//\n// Both proxy the engine and fail closed. The previous implementation checked that seven\n// constants were seven constants, so it could never report anything but healthy.\n// =============================================================================\n\nasync function handleHealth(req) {\n  const upstream = await proxyToEngine(req, '/health');\n  const healthy = upstream.statusCode === 200;\n\n  const agentStatuses = {};\n  for (const agent of AGENTS) {\n    agentStatuses[agent] = {\n      status: healthy ? 'healthy' : 'unavailable',\n      route: AGENT_ROUTES[agent],\n      name: AGENT_DISPLAY_NAMES[agent],\n    };\n  }\n\n  return {\n    statusCode: healthy ? 200 : 503,\n    data: {\n      status: healthy ? 'healthy' : 'unhealthy',\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      engine: {\n        url: ENGINE_URL || null,\n        reachable: healthy,\n        status_code: upstream.statusCode,\n        detail: healthy ? undefined : upstream.data && upstream.data.error,\n      },\n      agents: agentStatuses,\n      agents_list: AGENTS,\n      base_url: BASE_URL,\n      timestamp: new Date().toISOString(),\n    },\n  };\n}\n\nasync function handleReady(req) {\n  const upstream = await proxyToEngine(req, '/ready');\n  const ready = upstream.statusCode === 200;\n\n  return {\n    statusCode: ready ? 200 : 503,\n    data: {\n      ready,\n      service: SERVICE_NAME,\n      version: SERVICE_VERSION,\n      checks: {\n        engine_configured: Boolean(ENGINE_URL),\n        engine_reachable: ready,\n        engine_status_code: upstream.statusCode,\n      },\n    },\n  };\n}\n\n// =============================================================================\n// Contract Endpoint (served locally -- it is static metadata, not orchestration)\n// =============================================================================\n\nfunction handleContracts(agentName) {\n  if (agentName) {\n    const contract = AGENT_CONTRACTS[agentName];\n    if (!contract) {\n      return { statusCode: 404, data: { error: `Unknown agent: ${agentName}` } };\n    }\n    return { statusCode: 200, data: contract };\n  }\n  return { statusCode: 200, data: AGENT_CONTRACTS };\n}\n\n// =============================================================================\n// Router\n// =============================================================================\n\nfunction parseRoute(path) {\n  const normalized = path.replace(/\\/+$/, '') || '/';\n\n  if (normalized === '/' || normalized === '') return { type: 'root' };\n  if (normalized === '/health') return { type: 'health' };\n  if (normalized === '/ready') return { type: 'ready' };\n\n  // /v1/orchestrator/contracts/:agent?\n  const contractMatch = normalized.match(/^\\/v1\\/orchestrator\\/contracts(?:\\/([a-z-]+))?$/);\n  if (contractMatch) return { type: 'contracts', agent: contractMatch[1] || null };\n\n  // /v1/orchestrator/:agent\n  const agentMatch = normalized.match(/^\\/v1\\/orchestrator\\/([a-z-]+)$/);\n  if (agentMatch && AGENTS.includes(agentMatch[1])) {\n    return { type: 'agent', agent: agentMatch[1] };\n  }\n\n  return { type: 'not_found' };\n}\n\n// =============================================================================\n// Entry Point\n// =============================================================================\n\n/**\n * Cloud Function HTTP handler.\n *\n * @param {import('express').Request} req\n * @param {import('express').Response} res\n */\nconst handler = async (req, res) => {\n  const startTime = Date.now();\n\n  // CORS preflight\n  setCorsHeaders(res);\n  if (req.method === 'OPTIONS') {\n    res.status(204).send('');\n    return;\n  }\n\n  const route = parseRoute(req.path);\n\n  switch (route.type) {\n    // ------------------------------------------------------------------\n    // Root\n    // ------------------------------------------------------------------\n    case 'root': {\n      const body = buildResponse(req, 'ROUTER', 'completed', {\n        service: SERVICE_NAME,\n        version: SERVICE_VERSION,\n        description: 'Orchestrator Agents Cloud Function — authenticating proxy to the Rust orchestration engine.',\n        engine_url: ENGINE_URL || null,\n        agents: AGENTS.map((a) => ({\n          name: AGENT_DISPLAY_NAMES[a],\n          route: AGENT_ROUTES[a],\n          contract: `/v1/orchestrator/contracts/${a}`,\n        })),\n        endpoints: {\n          health: '/health',\n          ready: '/ready',\n          contracts: '/v1/orchestrator/contracts',\n        },\n      }, startTime);\n      res.status(200).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Health\n    // ------------------------------------------------------------------\n    case 'health': {\n      const result = await handleHealth(req);\n      const body = buildResponse(req, 'HEALTH', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Ready\n    // ------------------------------------------------------------------\n    case 'ready': {\n      const result = await handleReady(req);\n      const body = buildResponse(req, 'READY', result.statusCode === 200 ? 'completed' : 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Contracts\n    // ------------------------------------------------------------------\n    case 'contracts': {\n      const result = handleContracts(route.agent);\n      const body = buildResponse(req, 'CONTRACTS', 'completed', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Agent routes — proxied to the engine\n    // ------------------------------------------------------------------\n    case 'agent': {\n      if (req.method !== 'POST') {\n        const body = buildResponse(req, route.agent, 'error', {\n          error: `Method ${req.method} not allowed. Use POST.`,\n          agent: route.agent,\n        }, startTime);\n        res.status(405).json(body);\n        return;\n      }\n\n      const result = await proxyToEngine(req, AGENT_ROUTES[route.agent], req.body || {});\n\n      if (result.passthrough) {\n        // The engine already applied the envelope. Forward status and body unmodified so there\n        // is exactly one source of truth for what happened.\n        res.set('X-Correlation-ID', result.correlationId);\n        res.status(result.statusCode).json(result.data);\n        return;\n      }\n\n      // Proxy-level failure: the engine never answered, so this function describes its own error.\n      const body = buildResponse(req, route.agent, 'error', result.data, startTime);\n      res.status(result.statusCode).json(body);\n      return;\n    }\n\n    // ------------------------------------------------------------------\n    // Not found\n    // ------------------------------------------------------------------\n    default: {\n      const body = buildResponse(req, 'ROUTER', 'error', {\n        error: 'Route not found',\n        path: req.path,\n        available_routes: Object.values(AGENT_ROUTES).concat(['/health', '/ready', '/v1/orchestrator/contracts']),\n      }, startTime);\n      res.status(404).json(body);\n      return;\n    }\n  }\n};\n\nmodule.exports = { handler };\n",
+            "sha256": "123ec807951143b3ee224fc45c1a4f701a99bf68f303fec4193c9c792edbcb82"
+          }
+        },
+        "primaryDelta": 1,
+        "anchorScore": null,
+        "verdict": "REJECTED",
+        "failureReasons": [
+          "safety_regressed"
+        ],
+        "receipt": {
+          "payload": {
+            "kind": "candidate",
+            "id": "root__revision_gen1",
+            "target": "revision",
+            "verdict": "REJECTED",
+            "primaryDelta": 1,
+            "baselineScore": {
+              "primary": 0,
+              "itemWins": [
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "noopRate": 0,
+              "costPerWin": 0,
+              "regressed": true
+            },
+            "candidateScore": {
+              "primary": 1,
+              "itemWins": [
+                true,
+                true,
+                true,
+                true,
+                true
+              ],
+              "noopRate": 0,
+              "costPerWin": 0,
+              "regressed": true
+            },
+            "anchorScore": null,
+            "failureReasons": [
+              "safety_regressed"
+            ],
+            "parents": [
+              "root"
+            ],
+            "generation": 1
+          },
+          "signature": "C7XyXGSkj2LpNF8b1a1HMz6TIFDNCk6Gb7I9h1gau6dXrCl3aGX4Cp4cVcxSsda3mYeRZn6rzvL9rFI3C0N8CQ==",
+          "publicKey": "MCowBQYDK2VwAyEATA0t+MOFMh4N5MtEbOucY/UfVStlPv0MfmRDZoNqc1w=",
+          "alg": "ed25519"
+        },
+        "createdAt": "gen-1",
+        "baselineScore": {
+          "primary": 0,
+          "itemWins": [
+            false,
+            false,
+            false,
+            false,
+            false
+          ],
+          "noopRate": 0,
+          "costPerWin": 0,
+          "regressed": true
+        },
+        "candidateScore": {
+          "primary": 1,
+          "itemWins": [
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          "noopRate": 0,
+          "costPerWin": 0,
+          "regressed": true
+        }
+      }
+    ],
+    "lift_curve": [
+      {
+        "generation": 0,
+        "primary": 0,
+        "delta": 0,
+        "anchor": 1
+      }
+    ],
+    "gate_fingerprint": "c5942e7c9bf8f28fe7af47a6ec3887d11eeb3f8c8e8601cc6a7a54969ea0b981",
+    "verified_improvements": 0,
+    "anchor_surviving_improvements": 0,
+    "milestone_reached": false,
+    "created_at": "gen-1"
+  },
+  "limitations": "ActualHTTPupstreams withhandlerreqresadapter,notdeployedframework/IAM/Rustengine. FullacceptancefailclosedRust/security/CI/provider/coverage. Rootonlyreplay notcandidatepromotion. Cost/noopneutralunmeasuredzero,not savings. Timingsdiagnostic notspeedup."
+}
